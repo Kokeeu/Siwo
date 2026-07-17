@@ -7,7 +7,7 @@ import tailwindcss from '@tailwindcss/vite';
 // https://astro.build/config
 export default defineConfig({
   output: 'static',
-  site: 'https://YOUR_USERNAME.github.io',
+  site: 'https://Kokeeu.github.io',
   base: '/anitousen-search',
   integrations: [react()],
   vite: {
