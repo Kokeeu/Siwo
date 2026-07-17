@@ -72,7 +72,7 @@ export default function SearchApp({ animes }) {
           </select>
         </div>
 
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {filtered.map((anime) => (
             <a
               key={`${anime.title}-${anime.year}`}
@@ -82,7 +82,7 @@ export default function SearchApp({ animes }) {
               className={`${GLASS} group rounded-2xl overflow-hidden transition hover:border-teal-400/40 hover:bg-white/10 hover:shadow-[inset_0_1px_1px_rgba(255,255,255,0.5),0_12px_40px_rgba(0,0,0,0.2)]`}
             >
               {anime.coverImage ? (
-                <div className="aspect-[3/4] overflow-hidden">
+                <div className="aspect-[2/3] overflow-hidden">
                   <img
                     src={anime.coverImage}
                     alt={anime.title}
@@ -91,17 +91,17 @@ export default function SearchApp({ animes }) {
                   />
                 </div>
               ) : (
-                <div className="aspect-[3/4] flex items-center justify-center bg-white/5">
+                <div className="aspect-[2/3] flex items-center justify-center bg-white/5">
                   <span className="text-xs text-gray-500 uppercase tracking-widest">
                     No Image
                   </span>
                 </div>
               )}
-              <div className="p-5">
-                <h2 className="font-semibold text-lg leading-snug mb-2 group-hover:text-teal-300 transition">
+              <div className="p-3">
+                <h2 className="font-semibold text-sm leading-snug mb-1 group-hover:text-teal-300 transition line-clamp-2">
                   {anime.title}
                 </h2>
-                <p className="text-sm text-gray-400">
+                <p className="text-xs text-gray-400">
                   {anime.season} {anime.year}
                 </p>
               </div>
