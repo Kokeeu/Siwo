@@ -1,0 +1,9 @@
+---
+import Layout from '../layouts/Layout.astro';
+import SearchApp from '../components/SearchApp.jsx';
+import animes from '../../public/data.json';
+---
+
+<Layout title="AniTousen Search">
+  <SearchApp animes={animes} client:load />
+</Layout>
