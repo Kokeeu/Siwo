@@ -76,17 +76,35 @@ export default function SearchApp({ animes }) {
           {filtered.map((anime) => (
             <a
               key={`${anime.title}-${anime.year}`}
-              href={anime.url}
+              href={anime.downloadLink || anime.url}
               target="_blank"
               rel="noopener noreferrer"
-              className={`${GLASS} group rounded-2xl p-5 transition hover:border-teal-400/40 hover:bg-white/10 hover:shadow-[inset_0_1px_1px_rgba(255,255,255,0.5),0_12px_40px_rgba(0,0,0,0.2)]`}
+              className={`${GLASS} group rounded-2xl overflow-hidden transition hover:border-teal-400/40 hover:bg-white/10 hover:shadow-[inset_0_1px_1px_rgba(255,255,255,0.5),0_12px_40px_rgba(0,0,0,0.2)]`}
             >
-              <h2 className="font-semibold text-lg leading-snug mb-2 group-hover:text-teal-300 transition">
-                {anime.title}
-              </h2>
-              <p className="text-sm text-gray-400">
-                {anime.season} {anime.year}
-              </p>
+              {anime.coverImage ? (
+                <div className="aspect-[3/4] overflow-hidden">
+                  <img
+                    src={anime.coverImage}
+                    alt={anime.title}
+                    loading="lazy"
+                    className="w-full h-full object-cover transition duration-500 group-hover:scale-105"
+                  />
+                </div>
+              ) : (
+                <div className="aspect-[3/4] flex items-center justify-center bg-white/5">
+                  <span className="text-xs text-gray-500 uppercase tracking-widest">
+                    No Image
+                  </span>
+                </div>
+              )}
+              <div className="p-5">
+                <h2 className="font-semibold text-lg leading-snug mb-2 group-hover:text-teal-300 transition">
+                  {anime.title}
+                </h2>
+                <p className="text-sm text-gray-400">
+                  {anime.season} {anime.year}
+                </p>
+              </div>
             </a>
           ))}
         </div>
