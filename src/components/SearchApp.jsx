@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import ParticlesBackground from './ParticlesBackground.jsx';
 
 const GLASS =
@@ -8,6 +8,15 @@ export default function SearchApp({ animes }) {
   const [query, setQuery] = useState('');
   const [season, setSeason] = useState('All');
   const [year, setYear] = useState('All');
+  const [showAll, setShowAll] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => setScrolled(window.scrollY > 80);
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    handleScroll();
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const seasons = useMemo(
     () => ['All', ...new Set(animes.map((a) => a.season))],
@@ -29,56 +38,47 @@ export default function SearchApp({ animes }) {
     });
   }, [animes, query, season, year]);
 
+  const hasFilters = query.trim() !== '' || season !== 'All' || year !== 'All';
+  const displayed = hasFilters
+    ? filtered
+    : filtered.slice(0, showAll ? filtered.length : 20);
+  const showLoadMore = !hasFilters && filtered.length > 20 && !showAll;
+
   return (
     <div className="min-h-screen flex flex-col bg-[#ffffff] font-inter">
-      <nav className="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-[#e2e8f0] shadow-[rgba(0,0,0,0.04)_0px_1px_2px_0px]">
-        <div className="max-w-[1200px] mx-auto px-6 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <img
-              src="avatar.jpg"
-              alt="Siwö"
-              className="w-8 h-8 rounded-full object-cover border border-[#e2e8f0]"
-            />
-            <span className="font-space font-bold text-[18px] tracking-[0.02em] text-[#1d242f]">
-              Siwö
-            </span>
-          </div>
-          <a
-            href="https://anitousen.com/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-[14px] font-medium text-[#6b7280] hover:text-[#14b8a6] transition"
-          >
-            AniTousen
-          </a>
+      <nav
+        className={`fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-md border-b border-[#e2e8f0] shadow-[rgba(0,0,0,0.04)_0px_1px_2px_0px] transition-transform duration-300 ${scrolled ? 'translate-y-0' : '-translate-y-full'}`}
+      >
+        <div className="max-w-[1200px] mx-auto px-6 h-16 flex items-center gap-3">
+          <img
+            src="avatar.jpg"
+            alt="Siwö"
+            className="w-8 h-8 rounded-full object-cover border border-[#e2e8f0]"
+          />
+          <span className="font-space font-bold text-[18px] tracking-[0.02em] text-[#1d242f]">
+            Siwö
+          </span>
         </div>
       </nav>
 
-      <section className="relative overflow-hidden border-b border-[#e2e8f0]">
+      <section className="relative overflow-hidden">
         <ParticlesBackground />
         <div className="relative max-w-[1200px] mx-auto px-6 py-20 md:py-24 text-center">
+          <img
+            src="avatar.jpg"
+            alt="Siwö"
+            className="w-20 h-20 md:w-24 md:h-24 rounded-full object-cover border border-[#e2e8f0] mx-auto mb-6"
+          />
           <h1 className="font-space font-black text-[56px] md:text-[64px] leading-[1.13] tracking-[0.1em] text-[#1d242f] mb-6">
             Siwö
           </h1>
-          <p className="font-inter text-[18px] leading-[1.5] text-[#6b7280] max-w-xl mx-auto mb-8">
+          <p className="font-inter text-[18px] leading-[1.5] text-[#6b7280] max-w-xl mx-auto">
             Openings & Endings de anime
           </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <a
-              href="#explore"
-              className="inline-flex items-center justify-center px-6 py-3 bg-[#14b8a6] hover:bg-[#0d9488] text-white font-inter font-semibold text-[15px] rounded-[6px] transition"
-            >
-              Explorar
-            </a>
-            <div className="inline-flex items-center gap-2 px-4 py-2.5 bg-white border border-[#e2e8f0] rounded-[6px] text-[#111827] font-inter text-[14px]">
-              <span className="text-[#6b7280]">$0.00</span>
-              <span className="font-medium">Gratis para siempre</span>
-            </div>
-          </div>
         </div>
       </section>
 
-      <main id="explore" className="flex-1 max-w-[1200px] mx-auto px-6 py-16 w-full">
+      <main className="flex-1 max-w-[1200px] mx-auto px-6 py-16 w-full">
         <div className="flex flex-col md:flex-row gap-3 mb-10">
           <input
             type="text"
@@ -112,7 +112,7 @@ export default function SearchApp({ animes }) {
         </div>
 
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          {filtered.map((anime) => (
+          {displayed.map((anime) => (
             <a
               key={`${anime.title}-${anime.year}`}
               href={anime.downloadLink || anime.url}
@@ -137,7 +137,8 @@ export default function SearchApp({ animes }) {
                 </div>
               )}
               <div className="p-3">
-                <h2 className="font-inter font-semibold text-[14px] leading-[1.4] text-[#1d242f] mb-1 line-clamp-2 group-hover:text-[#14b8a6] transition"
+                <h2
+                  className="font-inter font-semibold text-[14px] leading-[1.4] text-[#1d242f] mb-1 line-clamp-2 group-hover:text-[#14b8a6] transition"
                 >
                   {anime.title}
                 </h2>
@@ -148,6 +149,18 @@ export default function SearchApp({ animes }) {
             </a>
           ))}
         </div>
+
+        {showLoadMore && (
+          <div className="flex justify-center mt-10">
+            <button
+              type="button"
+              onClick={() => setShowAll(true)}
+              className="px-6 py-3 bg-[#14b8a6] hover:bg-[#0d9488] text-white font-inter font-semibold text-[15px] rounded-[6px] transition"
+            >
+              Ver más
+            </button>
+          </div>
+        )}
 
         {filtered.length === 0 && (
           <p className="text-center text-[#6b7280] mt-16 text-[16px]">
