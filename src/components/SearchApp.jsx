@@ -78,7 +78,7 @@ export default function SearchApp({ animes }) {
         </div>
       </section>
 
-      <main className="flex-1 bg-[#f8fafc] w-full">
+      <main className="flex-1 bg-[#ffffff] w-full">
         <div className="max-w-[1200px] mx-auto px-6 py-16 w-full">
           <div className="flex flex-col md:flex-row gap-3 mb-10">
           <input
