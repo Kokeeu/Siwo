@@ -132,7 +132,7 @@ export default function SearchApp({ animes }) {
                   />
                 </div>
               ) : (
-                <div className="aspect-[2/3] flex flex-col items-center justify-center bg-gradient-to-br from-[#f3f4f6] to-[#e5e7eb]">
+                <div className="aspect-[2/3] flex flex-col items-center justify-center">
                   <img
                     src="placeholder.png"
                     alt="No image"
