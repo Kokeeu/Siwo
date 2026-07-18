@@ -1,7 +1,8 @@
 import { useState, useMemo } from 'react';
+import ParticlesBackground from './ParticlesBackground.jsx';
 
 const GLASS =
-  'bg-white/5 backdrop-blur-xl border border-white/10 shadow-[inset_0_1px_1px_rgba(255,255,255,0.4),0_8px_32px_rgba(0,0,0,0.12)]';
+  'bg-white/80 backdrop-blur-md border border-[#e2e8f0] shadow-[rgba(0,0,0,0.04)_0px_1px_2px_0px]';
 
 export default function SearchApp({ animes }) {
   const [query, setQuery] = useState('');
@@ -29,29 +30,67 @@ export default function SearchApp({ animes }) {
   }, [animes, query, season, year]);
 
   return (
-    <main className="min-h-screen bg-[#1d242f] text-white font-sans selection:bg-teal-500/30">
-      <div className="fixed inset-0 pointer-events-none bg-[radial-gradient(circle_at_top_right,#0d9488,transparent_45%)] opacity-25" />
+    <div className="min-h-screen flex flex-col bg-[#ffffff] font-inter">
+      <nav className="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-[#e2e8f0] shadow-[rgba(0,0,0,0.04)_0px_1px_2px_0px]">
+        <div className="max-w-[1200px] mx-auto px-6 h-16 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <img
+              src="avatar.jpg"
+              alt="Siwö"
+              className="w-8 h-8 rounded-full object-cover border border-[#e2e8f0]"
+            />
+            <span className="font-space font-bold text-[18px] tracking-[0.02em] text-[#1d242f]">
+              Siwö
+            </span>
+          </div>
+          <a
+            href="https://anitousen.com/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-[14px] font-medium text-[#6b7280] hover:text-[#14b8a6] transition"
+          >
+            AniTousen
+          </a>
+        </div>
+      </nav>
 
-      <div className="relative max-w-5xl mx-auto px-6 py-16">
-        <h1 className="text-center text-4xl md:text-6xl font-bold tracking-tight mb-4">
-          AniTousen
-        </h1>
-        <p className="text-center text-gray-400 mb-12 text-lg">
-          Buscador de animes por temporada
-        </p>
+      <section className="relative overflow-hidden border-b border-[#e2e8f0]">
+        <ParticlesBackground />
+        <div className="relative max-w-[1200px] mx-auto px-6 py-20 md:py-24 text-center">
+          <h1 className="font-space font-black text-[56px] md:text-[64px] leading-[1.13] tracking-[0.1em] text-[#1d242f] mb-6">
+            Siwö
+          </h1>
+          <p className="font-inter text-[18px] leading-[1.5] text-[#6b7280] max-w-xl mx-auto mb-8">
+            Openings & Endings de anime
+          </p>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <a
+              href="#explore"
+              className="inline-flex items-center justify-center px-6 py-3 bg-[#14b8a6] hover:bg-[#0d9488] text-white font-inter font-semibold text-[15px] rounded-[6px] transition"
+            >
+              Explorar
+            </a>
+            <div className="inline-flex items-center gap-2 px-4 py-2.5 bg-white border border-[#e2e8f0] rounded-[6px] text-[#111827] font-inter text-[14px]">
+              <span className="text-[#6b7280]">$0.00</span>
+              <span className="font-medium">Gratis para siempre</span>
+            </div>
+          </div>
+        </div>
+      </section>
 
-        <div className="flex flex-col md:flex-row gap-4 mb-10">
+      <main id="explore" className="flex-1 max-w-[1200px] mx-auto px-6 py-16 w-full">
+        <div className="flex flex-col md:flex-row gap-3 mb-10">
           <input
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Buscar anime..."
-            className={`${GLASS} flex-1 px-6 py-3.5 rounded-full outline-none transition focus:border-teal-400/50 focus:bg-white/10`}
+            className={`${GLASS} flex-1 px-4 py-3 rounded-[6px] outline-none transition focus:border-[#14b8a6] focus:ring-1 focus:ring-[#14b8a6] text-[#111827] placeholder:text-[#9ca3af]`}
           />
           <select
             value={season}
             onChange={(e) => setSeason(e.target.value)}
-            className={`${GLASS} px-6 py-3.5 rounded-full appearance-none cursor-pointer min-w-[140px]`}
+            className={`${GLASS} px-4 py-3 rounded-[6px] appearance-none cursor-pointer min-w-[140px] text-[#111827] outline-none focus:border-[#14b8a6] focus:ring-1 focus:ring-[#14b8a6]`}
           >
             {seasons.map((s) => (
               <option key={s} value={s}>
@@ -62,7 +101,7 @@ export default function SearchApp({ animes }) {
           <select
             value={year}
             onChange={(e) => setYear(e.target.value)}
-            className={`${GLASS} px-6 py-3.5 rounded-full appearance-none cursor-pointer min-w-[120px]`}
+            className={`${GLASS} px-4 py-3 rounded-[6px] appearance-none cursor-pointer min-w-[120px] text-[#111827] outline-none focus:border-[#14b8a6] focus:ring-1 focus:ring-[#14b8a6]`}
           >
             {years.map((y) => (
               <option key={y} value={y}>
@@ -79,7 +118,7 @@ export default function SearchApp({ animes }) {
               href={anime.downloadLink || anime.url}
               target="_blank"
               rel="noopener noreferrer"
-              className={`${GLASS} group rounded-2xl overflow-hidden transition hover:border-teal-400/40 hover:bg-white/10 hover:shadow-[inset_0_1px_1px_rgba(255,255,255,0.5),0_12px_40px_rgba(0,0,0,0.2)]`}
+              className={`${GLASS} group rounded-[10px] overflow-hidden transition hover:border-[#14b8a6] hover:shadow-[rgba(0,0,0,0.04)_0px_1px_2px_0px]`}
             >
               {anime.coverImage ? (
                 <div className="aspect-[2/3] overflow-hidden">
@@ -91,17 +130,18 @@ export default function SearchApp({ animes }) {
                   />
                 </div>
               ) : (
-                <div className="aspect-[2/3] flex items-center justify-center bg-white/5">
-                  <span className="text-xs text-gray-500 uppercase tracking-widest">
+                <div className="aspect-[2/3] flex items-center justify-center bg-[#f3f4f6]">
+                  <span className="text-[11px] text-[#718096] uppercase tracking-widest">
                     No Image
                   </span>
                 </div>
               )}
               <div className="p-3">
-                <h2 className="font-semibold text-sm leading-snug mb-1 group-hover:text-teal-300 transition line-clamp-2">
+                <h2 className="font-inter font-semibold text-[14px] leading-[1.4] text-[#1d242f] mb-1 line-clamp-2 group-hover:text-[#14b8a6] transition"
+                >
                   {anime.title}
                 </h2>
-                <p className="text-xs text-gray-400">
+                <p className="text-[12px] text-[#6b7280]">
                   {anime.season} {anime.year}
                 </p>
               </div>
@@ -110,15 +150,40 @@ export default function SearchApp({ animes }) {
         </div>
 
         {filtered.length === 0 && (
-          <p className="text-center text-gray-400 mt-16 text-lg">
+          <p className="text-center text-[#6b7280] mt-16 text-[16px]">
             No se encontraron resultados.
           </p>
         )}
+      </main>
 
-        <p className="text-center text-gray-500 text-sm mt-16">
-          {filtered.length} resultados · Datos de AniTousen
-        </p>
-      </div>
-    </main>
+      <footer className="border-t border-[#e2e8f0] bg-white">
+        <div className="max-w-[1200px] mx-auto px-6 py-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <img
+              src="avatar.jpg"
+              alt="Siwö"
+              className="w-8 h-8 rounded-full object-cover border border-[#e2e8f0]"
+            />
+            <span className="font-space font-bold text-[16px] text-[#1d242f]">
+              Siwö
+            </span>
+          </div>
+          <p className="text-[14px] text-[#6b7280] text-center">
+            Datos proporcionados por{' '}
+            <a
+              href="https://anitousen.com/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[#14b8a6] hover:text-[#0d9488] font-medium transition"
+            >
+              AniTousen
+            </a>
+          </p>
+          <span className="text-[13px] text-[#9ca3af]">
+            {filtered.length} resultados
+          </span>
+        </div>
+      </footer>
+    </div>
   );
 }
