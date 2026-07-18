@@ -51,20 +51,26 @@ function parseIndex(buffer) {
   return items;
 }
 
+const CACHE_VERSION = 2;
+
 async function loadCache() {
   try {
     const raw = await fs.readFile(CACHE_FILE, 'utf-8');
     const parsed = JSON.parse(raw);
-    const cache = new Map();
 
-    for (const [key, value] of Object.entries(parsed)) {
-      // Migrar caché antiguo sin status: tratar null como error (reintentar)
-      if (!value.status) {
-        value.status = value.coverImage === null ? 'error' : 'found';
-      }
-      cache.set(key, value);
+    if (parsed.version !== CACHE_VERSION) {
+      console.log('Cache version changed; rebuilding enriched cache...');
+      return new Map();
     }
 
+    const cache = new Map();
+    for (const [key, value] of Object.entries(parsed.entries || {})) {
+      if (value.status === 'found') {
+        cache.set(key, value);
+      } else if (value.status === 'not_found') {
+        cache.set(key, value);
+      }
+    }
     return cache;
   } catch {
     return new Map();
@@ -72,7 +78,10 @@ async function loadCache() {
 }
 
 async function saveCache(cache) {
-  await fs.writeFile(CACHE_FILE, JSON.stringify(Object.fromEntries(cache), null, 2));
+  await fs.writeFile(
+    CACHE_FILE,
+    JSON.stringify({ version: CACHE_VERSION, entries: Object.fromEntries(cache) }, null, 2)
+  );
 }
 
 function cacheKey({ title, season, year }) {
@@ -114,26 +123,46 @@ async function fetchWithRetry(operation) {
   }
 }
 
-async function fetchJikanCover(title) {
+async function fetchJikanDetails(title) {
   const encodedTitle = encodeURIComponent(title);
   const res = await fetch(`https://api.jikan.moe/v4/anime?q=${encodedTitle}&limit=1`);
   if (!res.ok) {
     throw new Error(`Jikan error ${res.status}`);
   }
   const { data } = await res.json();
-  return (
-    data?.[0]?.images?.webp?.large_image_url ||
-    data?.[0]?.images?.jpg?.large_image_url ||
-    null
-  );
+  const anime = data?.[0];
+  if (!anime) return null;
+
+  const coverImage =
+    anime.images?.webp?.large_image_url ||
+    anime.images?.jpg?.large_image_url ||
+    null;
+
+  return {
+    coverImage,
+    synopsis: anime.synopsis || null,
+    genres: anime.genres?.map((g) => g.name) || [],
+    studios: anime.studios?.map((s) => s.name) || [],
+    score: anime.score ?? null,
+    episodes: anime.episodes ?? null,
+    trailerUrl: anime.trailer?.url || anime.trailer?.embed_url || null,
+    malUrl: anime.url || null,
+  };
 }
 
-async function fetchAniListCover(title) {
+async function fetchAniListDetails(title) {
   const query = `
     query ($search: String) {
       Page(page: 1, perPage: 1) {
         media(search: $search, type: ANIME) {
           coverImage { large }
+          description
+          genres
+          studios { nodes { name } }
+          averageScore
+          episodes
+          trailer { id site }
+          siteUrl
         }
       }
     }
@@ -147,33 +176,54 @@ async function fetchAniListCover(title) {
     throw new Error(`AniList error ${res.status}`);
   }
   const { data } = await res.json();
-  return data?.Page?.media?.[0]?.coverImage?.large || null;
+  const media = data?.Page?.media?.[0];
+  if (!media) return null;
+
+  let trailerUrl = null;
+  if (media.trailer?.site === 'youtube' && media.trailer.id) {
+    trailerUrl = `https://www.youtube.com/watch?v=${media.trailer.id}`;
+  }
+
+  const cleanDescription = media.description
+    ? media.description.replace(/\u003cbr\u003e/g, '\n').replace(/\u003c[^\u003e]+\u003e/g, '')
+    : null;
+
+  return {
+    coverImage: media.coverImage?.large || null,
+    synopsis: cleanDescription,
+    genres: media.genres || [],
+    studios: media.studios?.nodes?.map((s) => s.name) || [],
+    score: media.averageScore ? media.averageScore / 10 : null,
+    episodes: media.episodes ?? null,
+    trailerUrl,
+    malUrl: media.siteUrl || null,
+  };
 }
 
-async function fetchCoverImage(item, cache) {
+async function fetchAnimeDetails(item, cache) {
   const key = cacheKey(item);
   const cached = cache.get(key);
 
   if (cached && cached.status === 'found') {
     console.log(`  ↳ cache hit`);
-    return cached.coverImage;
+    return cached;
   }
 
   if (cached && cached.status === 'not_found') {
     console.log(`  ↳ cache not found`);
-    return null;
+    return { ...cached, coverImage: null };
   }
 
-  let image = null;
+  let details = null;
   let status = 'error';
 
   if (jikanHealthy) {
-    const jikanResult = await fetchWithRetry(() => fetchJikanCover(item.title));
+    const jikanResult = await fetchWithRetry(() => fetchJikanDetails(item.title));
     if (jikanResult.success) {
-      image = jikanResult.result;
+      details = jikanResult.result;
       jikanConsecutiveFailures = 0;
-      status = image === null ? 'not_found' : 'found';
-      console.log(`  ↳ Jikan ${image ? 'found' : 'not found'}`);
+      status = details === null ? 'not_found' : 'found';
+      console.log(`  ↳ Jikan ${details ? 'found' : 'not found'}`);
     } else {
       jikanConsecutiveFailures++;
       console.warn(`  ↳ ${jikanResult.error} for "${item.title}" (${jikanConsecutiveFailures} consecutive)`);
@@ -184,25 +234,35 @@ async function fetchCoverImage(item, cache) {
     }
   }
 
-  if (!image && status !== 'not_found') {
-    const anilistResult = await fetchWithRetry(() => fetchAniListCover(item.title));
+  if (!details && status !== 'not_found') {
+    const anilistResult = await fetchWithRetry(() => fetchAniListDetails(item.title));
     if (anilistResult.success) {
-      image = anilistResult.result;
-      status = image === null ? 'not_found' : 'found';
-      console.log(`  ↳ AniList ${image ? 'found' : 'not found'}`);
+      details = anilistResult.result;
+      status = details === null ? 'not_found' : 'found';
+      console.log(`  ↳ AniList ${details ? 'found' : 'not found'}`);
     } else {
       console.warn(`  ↳ ${anilistResult.error} for "${item.title}"`);
       status = 'error';
     }
   }
 
-  cache.set(key, {
-    coverImage: image,
+  const cachedEntry = {
     status,
+    coverImage: details?.coverImage || null,
+    synopsis: details?.synopsis || null,
+    genres: details?.genres || [],
+    studios: details?.studios || [],
+    score: details?.score ?? null,
+    episodes: details?.episodes ?? null,
+    trailerUrl: details?.trailerUrl || null,
+    malUrl: details?.malUrl || null,
+    source: details ? 'jikan' : null,
     cachedAt: new Date().toISOString(),
-  });
+  };
 
-  return image;
+  cache.set(key, cachedEntry);
+
+  return cachedEntry;
 }
 
 async function build() {
@@ -216,7 +276,7 @@ async function build() {
   for (let i = 0; i < items.length; i++) {
     const item = items[i];
     console.log(`[${i + 1}/${items.length}] ${item.title}`);
-    const coverImage = await fetchCoverImage(item, cache);
+    const details = await fetchAnimeDetails(item, cache);
 
     results.push({
       title: item.title,
@@ -224,11 +284,29 @@ async function build() {
       year: item.year,
       url: item.downloadLink,
       downloadLink: item.downloadLink,
-      coverImage,
+      coverImage: details.coverImage,
+      synopsis: details.synopsis,
+      genres: details.genres,
+      studios: details.studios,
+      score: details.score,
+      episodes: details.episodes,
+      trailerUrl: details.trailerUrl,
+      malUrl: details.malUrl,
     });
   }
 
-  await fs.writeFile(OUTPUT, JSON.stringify(results, null, 2));
+  await fs.writeFile(
+    OUTPUT,
+    JSON.stringify(
+      {
+        generatedAt: new Date().toISOString(),
+        count: results.length,
+        animes: results,
+      },
+      null,
+      2
+    )
+  );
   await saveCache(cache);
   console.log(`\nIndex generated: ${results.length} entries in ${OUTPUT}`);
 }

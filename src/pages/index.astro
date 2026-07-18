@@ -1,9 +1,11 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import SearchApp from '../components/SearchApp.jsx';
-import animes from '../../public/data.json';
+import data from '../../public/data.json';
+
+const { animes = data, generatedAt = new Date().toISOString() } = data || {};
 ---
 
-<Layout title="Siwö - OP and ED">
-  <SearchApp animes={animes} client:load />
+<Layout title="Siwö - OP and ED" generatedAt={generatedAt}>
+  <SearchApp animes={animes} generatedAt={generatedAt} client:load />
 </Layout>

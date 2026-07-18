@@ -4,6 +4,7 @@ dist/
 # generated data
 .cache/
 public/data.json
+public/jikan-cache.json
 
 # generated types
 .astro/

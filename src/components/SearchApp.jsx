@@ -1,21 +1,109 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import ParticlesBackground from './ParticlesBackground.jsx';
+import AnimeModal from './AnimeModal.jsx';
+import AnimeSkeleton from './AnimeSkeleton.jsx';
+import Footer from './Footer.jsx';
+
+const BASE_URL = import.meta.env.BASE_URL || '/';
+const HOME_URL = BASE_URL.endsWith('/') ? BASE_URL : BASE_URL + '/';
+const ABOUT_URL = HOME_URL + 'about';
 
 const GLASS =
-  'bg-white/80 backdrop-blur-md border border-[#e2e8f0] shadow-[rgba(0,0,0,0.04)_0px_1px_2px_0px]';
+  'bg-white/70 backdrop-blur-xl border border-white/60 shadow-[rgba(0,0,0,0.06)_0px_4px_12px_-2px]';
 
-export default function SearchApp({ animes }) {
+function useTilt(ref) {
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+
+    const handleMove = (e) => {
+      const rect = el.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      const cx = rect.width / 2;
+      const cy = rect.height / 2;
+      const rx = (y - cy) / cy;
+      const ry = (cx - x) / cx;
+      el.style.transform = `perspective(1000px) rotateX(${rx * 4}deg) rotateY(${ry * 4}deg) translateZ(8px) scale(1.02)`;
+    };
+
+    const handleLeave = () => {
+      el.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) translateZ(0) scale(1)';
+    };
+
+    el.addEventListener('mousemove', handleMove);
+    el.addEventListener('mouseleave', handleLeave);
+
+    return () => {
+      el.removeEventListener('mousemove', handleMove);
+      el.removeEventListener('mouseleave', handleLeave);
+    };
+  }, [ref]);
+}
+
+function AnimeCard({ anime, index, onClick }) {
+  const ref = useRef(null);
+  useTilt(ref);
+
+  return (
+    <button
+      ref={ref}
+      type="button"
+      onClick={() => onClick(anime)}
+      className={`group relative overflow-hidden rounded-[14px] border border-white/60 bg-white/70 text-left shadow-[rgba(0,0,0,0.06)_0px_4px_12px_-2px] backdrop-blur-xl transition-all duration-300 ease-out hover:border-[#14b8a6]/40 hover:shadow-[rgba(20,184,166,0.12)_0px_12px_24px_-4px] animate-fade-in-up`}
+      style={{ animationDelay: `${index * 40}ms`, transformStyle: 'preserve-3d' }}
+    >
+      <div className="pointer-events-none absolute inset-0 z-10 rounded-[14px] opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+        <div className="absolute inset-0 rounded-[14px] border-2 border-[#14b8a6]/20" />
+      </div>
+
+      {anime.coverImage ? (
+        <div className="aspect-[2/3] overflow-hidden">
+          <img
+            src={anime.coverImage}
+            alt={anime.title}
+            loading="lazy"
+            className="h-full w-full object-cover transition duration-500 group-hover:scale-110"
+          />
+        </div>
+      ) : (
+        <div className="aspect-[2/3] flex flex-col items-center justify-center bg-gradient-to-br from-[#f8fafc] to-[#e2e8f0]">
+          <img src="placeholder.png" alt="No image" className="mb-3 h-24 w-24 rounded-full opacity-70" />
+          <span className="text-[11px] uppercase tracking-widest text-[#9ca3af]">No Image</span>
+        </div>
+      )}
+
+      <div className="p-3">
+        <h2 className="line-clamp-2 font-inter text-[14px] font-semibold leading-[1.4] text-[#1d242f] transition group-hover:text-[#14b8a6]">
+          {anime.title}
+        </h2>
+        <p className="mt-1 text-[12px] text-[#6b7280]">
+          {anime.season} {anime.year}
+        </p>
+      </div>
+    </button>
+  );
+}
+
+export default function SearchApp({ animes, generatedAt }) {
   const [query, setQuery] = useState('');
   const [season, setSeason] = useState('All');
   const [year, setYear] = useState('All');
   const [showAll, setShowAll] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [selectedAnime, setSelectedAnime] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 80);
     window.addEventListener('scroll', handleScroll, { passive: true });
     handleScroll();
     return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setLoading(false), 250);
+    return () => clearTimeout(timer);
   }, []);
 
   const seasons = useMemo(
@@ -45,179 +133,147 @@ export default function SearchApp({ animes }) {
   const showLoadMore = !hasFilters && filtered.length > 20 && !showAll;
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#ffffff] font-inter">
+    <div className="relative flex min-h-screen flex-col overflow-hidden font-inter">
+      <div className="pointer-events-none fixed inset-0 z-0">
+        <div className="absolute -left-[20%] top-[5%] h-[500px] w-[500px] rounded-full bg-[#14b8a6]/8 blur-[120px]" />
+        <div className="absolute -right-[10%] top-[30%] h-[400px] w-[400px] rounded-full bg-[#38bdf8]/8 blur-[120px]" />
+        <div className="absolute bottom-[5%] left-[30%] h-[450px] w-[450px] rounded-full bg-[#f59e0b]/8 blur-[140px]" />
+      </div>
+
       <nav
-        className={`fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-md border-b border-[#e2e8f0] shadow-[rgba(0,0,0,0.04)_0px_1px_2px_0px] transition-transform duration-300 ${scrolled ? 'translate-y-0' : '-translate-y-full'}`}
+        className={`fixed top-0 left-0 right-0 z-50 border-b border-white/60 bg-white/80 shadow-[rgba(0,0,0,0.04)_0px_1px_2px_0px] backdrop-blur-xl transition-transform duration-300 ${scrolled ? 'translate-y-0' : '-translate-y-full'}`}
       >
-        <div className="max-w-[1200px] mx-auto px-6 h-16 flex items-center gap-3">
-          <img
-            src="avatar.jpg"
-            alt="Siwö"
-            className="w-8 h-8 rounded-full object-cover border border-[#e2e8f0]"
-          />
-          <span className="font-space font-bold text-[18px] tracking-[0.02em] text-[#1d242f]">
-            Siwö
-          </span>
+        <div className="mx-auto flex h-16 max-w-[1200px] items-center justify-between px-6">
+          <a href={HOME_URL} className="flex items-center gap-3">
+            <img
+              src="avatar.jpg"
+              alt="Siwö"
+              className="h-8 w-8 rounded-full border border-[#e2e8f0] object-cover"
+            />
+            <span className="font-space text-[18px] font-bold tracking-[0.02em] text-[#1d242f]">
+              Siwö
+            </span>
+          </a>
+          <a
+            href={ABOUT_URL}
+            className="text-[14px] font-medium text-[#6b7280] transition hover:text-[#14b8a6]"
+          >
+            Acerca de
+          </a>
         </div>
       </nav>
 
-      <section className="relative overflow-hidden">
+      <section className="relative z-10 overflow-hidden">
         <ParticlesBackground />
-        <div className="relative max-w-[1200px] mx-auto px-6 py-14 md:py-20 text-center">
-          <img
-            src="avatar.jpg"
-            alt="Siwö"
-            className="w-16 h-16 md:w-24 md:h-24 rounded-full object-cover border border-[#e2e8f0] mx-auto mb-5"
-          />
-          <h1 className="font-space font-black text-[42px] md:text-[64px] leading-[1.13] tracking-[0.1em] text-[#1d242f] mb-4">
+        <div className="relative mx-auto max-w-[1200px] px-6 py-14 text-center md:py-20">
+          <div className="mx-auto mb-5 h-fit w-fit">
+            <img
+              src="avatar.jpg"
+              alt="Siwö"
+              className="h-16 w-16 rounded-full border border-[#e2e8f0] object-cover shadow-[0_8px_30px_rgba(0,0,0,0.08)] md:h-24 md:w-24"
+            />
+          </div>
+          <h1 className="mb-4 font-space text-[42px] font-black leading-[1.13] tracking-[0.1em] text-[#1d242f] md:text-[64px]">
             Siwö
           </h1>
-          <p className="font-inter text-[16px] md:text-[18px] leading-[1.5] text-[#6b7280] max-w-xl mx-auto">
+          <p className="mx-auto max-w-xl font-inter text-[16px] leading-[1.5] text-[#6b7280] md:text-[18px]">
             Openings & Endings de anime
           </p>
         </div>
       </section>
 
-      <main className="flex-1 bg-[#ffffff] w-full">
-        <div className="max-w-[1200px] mx-auto px-6 py-16 w-full">
-          <div className="flex flex-col md:flex-row gap-3 mb-10">
-          <input
-            type="text"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Buscar anime..."
-            className={`${GLASS} flex-1 px-4 py-3 rounded-[6px] outline-none transition focus:border-[#14b8a6] focus:ring-1 focus:ring-[#14b8a6] text-[#111827] placeholder:text-[#9ca3af]`}
-          />
-          <select
-            value={season}
-            onChange={(e) => setSeason(e.target.value)}
-            className={`${GLASS} px-4 py-3 rounded-[6px] appearance-none cursor-pointer min-w-[140px] text-[#111827] outline-none focus:border-[#14b8a6] focus:ring-1 focus:ring-[#14b8a6]`}
-          >
-            {seasons.map((s) => (
-              <option key={s} value={s}>
-                {s === 'All' ? 'Temporada' : s}
-              </option>
-            ))}
-          </select>
-          <select
-            value={year}
-            onChange={(e) => setYear(e.target.value)}
-            className={`${GLASS} px-4 py-3 rounded-[6px] appearance-none cursor-pointer min-w-[120px] text-[#111827] outline-none focus:border-[#14b8a6] focus:ring-1 focus:ring-[#14b8a6]`}
-          >
-            {years.map((y) => (
-              <option key={y} value={y}>
-                {y === 'All' ? 'Año' : y}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          {displayed.map((anime, index) => (
-            <a
-              key={`${anime.title}-${anime.year}`}
-              href={anime.downloadLink || anime.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={`${GLASS} group rounded-[10px] overflow-hidden transition duration-300 hover:border-[#14b8a6] hover:shadow-lg hover:-translate-y-0.5 animate-fade-in-up`}
-              style={{ animationDelay: `${index * 50}ms` }}
+      <main className="relative z-10 flex-1">
+        <div className="mx-auto max-w-[1200px] px-6 py-16">
+          <div className="mb-10 flex flex-col gap-3 md:flex-row">
+            <input
+              type="text"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Buscar anime..."
+              className={`${GLASS} flex-1 rounded-[12px] px-4 py-3 text-[#111827] placeholder:text-[#9ca3af] outline-none transition focus:border-[#14b8a6] focus:ring-2 focus:ring-[#14b8a6]/20`}
+            />
+            <select
+              value={season}
+              onChange={(e) => setSeason(e.target.value)}
+              className={`${GLASS} min-w-[140px] cursor-pointer appearance-none rounded-[12px] px-4 py-3 text-[#111827] outline-none focus:border-[#14b8a6] focus:ring-2 focus:ring-[#14b8a6]/20`}
             >
-              {anime.coverImage ? (
-                <div className="aspect-[2/3] overflow-hidden">
-                  <img
-                    src={anime.coverImage}
-                    alt={anime.title}
-                    loading="lazy"
-                    className="w-full h-full object-cover transition duration-500 group-hover:scale-105"
+              {seasons.map((s) => (
+                <option key={s} value={s}>
+                  {s === 'All' ? 'Temporada' : s}
+                </option>
+              ))}
+            </select>
+            <select
+              value={year}
+              onChange={(e) => setYear(e.target.value)}
+              className={`${GLASS} min-w-[120px] cursor-pointer appearance-none rounded-[12px] px-4 py-3 text-[#111827] outline-none focus:border-[#14b8a6] focus:ring-2 focus:ring-[#14b8a6]/20`}
+            >
+              {years.map((y) => (
+                <option key={y} value={y}>
+                  {y === 'All' ? 'Año' : y}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {loading ? (
+            <AnimeSkeleton count={20} />
+          ) : (
+            <>
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                {displayed.map((anime, index) => (
+                  <AnimeCard
+                    key={`${anime.title}-${anime.year}`}
+                    anime={anime}
+                    index={index}
+                    onClick={setSelectedAnime}
                   />
-                </div>
-              ) : (
-                <div className="aspect-[2/3] flex flex-col items-center justify-center">
-                  <img
-                    src="placeholder.png"
-                    alt="No image"
-                    className="w-24 h-24 object-cover mb-3 rounded-full"
-                  />
-                  <span className="text-[11px] text-[#9ca3af] uppercase tracking-widest">
-                    No Image
-                  </span>
+                ))}
+              </div>
+
+              {showLoadMore && (
+                <div className="mt-10 flex justify-center">
+                  <button
+                    type="button"
+                    onClick={() => setShowAll(true)}
+                    className="relative overflow-hidden rounded-[12px] border border-[#e2e8f0] bg-white px-8 py-3 font-inter text-[15px] font-semibold text-[#1d242f] shadow-sm transition hover:-translate-y-0.5 hover:border-[#14b8a6] hover:text-[#14b8a6] hover:shadow-md"
+                  >
+                    Ver más
+                  </button>
                 </div>
               )}
-              <div className="p-3">
-                <h2
-                  className="font-inter font-semibold text-[14px] leading-[1.4] text-[#1d242f] mb-1 line-clamp-2 group-hover:text-[#14b8a6] transition"
-                >
-                  {anime.title}
-                </h2>
-                <p className="text-[12px] text-[#6b7280]">
-                  {anime.season} {anime.year}
-                </p>
-              </div>
-            </a>
-          ))}
+
+              {filtered.length === 0 && (
+                <div className="mt-20 flex flex-col items-center text-center">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="mb-3 h-12 w-12 text-[#9ca3af]"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth={1.5}
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                    />
+                  </svg>
+                  <p className="text-[16px] text-[#6b7280]">
+                    No se encontraron resultados.
+                  </p>
+                </div>
+              )}
+            </>
+          )}
         </div>
-
-        {showLoadMore && (
-          <div className="flex justify-center mt-10">
-            <button
-              type="button"
-              onClick={() => setShowAll(true)}
-              className="px-6 py-3 bg-white border border-[#e2e8f0] hover:border-[#14b8a6] hover:text-[#14b8a6] text-[#1d242f] font-inter font-semibold text-[15px] rounded-[6px] transition"
-            >
-              Ver más
-            </button>
-          </div>
-        )}
-
-        {filtered.length === 0 && (
-          <div className="flex flex-col items-center text-center mt-20">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="w-12 h-12 text-[#9ca3af] mb-3"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth={1.5}
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-              />
-            </svg>
-            <p className="text-[#6b7280] text-[16px]">
-              No se encontraron resultados.
-            </p>
-          </div>
-        )}
-      </div>
       </main>
 
-      <footer className="border-t border-[#e2e8f0] bg-white">
-        <div className="max-w-[1200px] mx-auto px-6 py-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <img
-              src="avatar.jpg"
-              alt="Siwö"
-              className="w-8 h-8 rounded-full object-cover border border-[#e2e8f0]"
-            />
-            <span className="font-space font-bold text-[16px] text-[#1d242f]">
-              Siwö
-            </span>
-          </div>
-          <p className="text-[14px] text-[#6b7280] text-center">
-            Datos proporcionados por{' '}
-            <a
-              href="https://anitousen.com/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-[#14b8a6] hover:text-[#0d9488] font-medium transition"
-            >
-              AniTousen
-            </a>
-          </p>
-        </div>
-      </footer>
+      <Footer generatedAt={generatedAt} />
+
+      {selectedAnime && (
+        <AnimeModal anime={selectedAnime} onClose={() => setSelectedAnime(null)} />
+      )}
     </div>
   );
 }
