@@ -136,7 +136,7 @@ export default function SearchApp({ animes }) {
                   <img
                     src="placeholder.png"
                     alt="No image"
-                    className="w-20 h-20 object-cover mb-3 rounded-full border border-[#e2e8f0]"
+                    className="w-24 h-24 object-cover mb-3 rounded-full"
                   />
                   <span className="text-[11px] text-[#9ca3af] uppercase tracking-widest">
                     No Image
