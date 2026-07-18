@@ -140,32 +140,39 @@ export default function SearchApp({ animes }) {
                     fill="none"
                   >
                     <path
-                      d="M50 12 C30 12 15 30 15 55 C15 65 20 75 28 82 C32 85 38 88 50 88 C62 88 68 85 72 82 C80 75 85 65 85 55 C85 30 70 12 50 12 Z"
+                      d="M50 10 C30 10 15 28 15 55 C15 70 22 82 32 88 C38 91 44 92 50 92 C56 92 62 91 68 88 C78 82 85 70 85 55 C85 28 70 10 50 10 Z"
                       stroke="#9ca3af"
                       strokeWidth="3"
                       fill="#f3f4f6"
                       strokeLinejoin="round"
                     />
                     <path
-                      d="M25 35 C22 20 35 10 50 10 C65 10 78 20 75 35 M40 15 C35 25 38 35 42 40 M60 15 C65 25 62 35 58 40"
+                      d="M22 45 C22 30 35 18 50 18 C65 18 78 30 78 45 C78 45 70 35 50 35 C30 35 22 45 22 45"
                       stroke="#9ca3af"
                       strokeWidth="2.5"
                       strokeLinecap="round"
+                      strokeLinejoin="round"
                     />
-                    <ellipse cx="36" cy="52" rx="7" ry="9" fill="#14b8a6" />
-                    <ellipse cx="64" cy="52" rx="7" ry="9" fill="#14b8a6" />
-                    <circle cx="34" cy="49" r="2" fill="#ffffff" />
-                    <circle cx="62" cy="49" r="2" fill="#ffffff" />
                     <path
-                      d="M42 72 Q50 78 58 72"
+                      d="M18 50 C16 65 20 80 28 86"
                       stroke="#9ca3af"
                       strokeWidth="2.5"
                       strokeLinecap="round"
                     />
                     <path
-                      d="M50 60 L48 66"
+                      d="M82 50 C84 65 80 80 72 86"
                       stroke="#9ca3af"
-                      strokeWidth="2"
+                      strokeWidth="2.5"
+                      strokeLinecap="round"
+                    />
+                    <circle cx="36" cy="56" r="5" fill="#14b8a6" />
+                    <circle cx="64" cy="56" r="5" fill="#14b8a6" />
+                    <circle cx="37" cy="54" r="1.5" fill="#ffffff" />
+                    <circle cx="65" cy="54" r="1.5" fill="#ffffff" />
+                    <path
+                      d="M40 72 Q50 80 60 72"
+                      stroke="#9ca3af"
+                      strokeWidth="2.5"
                       strokeLinecap="round"
                     />
                   </svg>
