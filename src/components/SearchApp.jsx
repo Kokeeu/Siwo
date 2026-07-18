@@ -133,49 +133,11 @@ export default function SearchApp({ animes }) {
                 </div>
               ) : (
                 <div className="aspect-[2/3] flex flex-col items-center justify-center bg-gradient-to-br from-[#f3f4f6] to-[#e5e7eb]">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="w-14 h-14 mb-3"
-                    viewBox="0 0 100 100"
-                    fill="none"
-                  >
-                    <path
-                      d="M50 10 C30 10 15 28 15 55 C15 70 22 82 32 88 C38 91 44 92 50 92 C56 92 62 91 68 88 C78 82 85 70 85 55 C85 28 70 10 50 10 Z"
-                      stroke="#9ca3af"
-                      strokeWidth="3"
-                      fill="#f3f4f6"
-                      strokeLinejoin="round"
-                    />
-                    <path
-                      d="M22 45 C22 30 35 18 50 18 C65 18 78 30 78 45 C78 45 70 35 50 35 C30 35 22 45 22 45"
-                      stroke="#9ca3af"
-                      strokeWidth="2.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                    <path
-                      d="M18 50 C16 65 20 80 28 86"
-                      stroke="#9ca3af"
-                      strokeWidth="2.5"
-                      strokeLinecap="round"
-                    />
-                    <path
-                      d="M82 50 C84 65 80 80 72 86"
-                      stroke="#9ca3af"
-                      strokeWidth="2.5"
-                      strokeLinecap="round"
-                    />
-                    <circle cx="36" cy="56" r="5" fill="#14b8a6" />
-                    <circle cx="64" cy="56" r="5" fill="#14b8a6" />
-                    <circle cx="37" cy="54" r="1.5" fill="#ffffff" />
-                    <circle cx="65" cy="54" r="1.5" fill="#ffffff" />
-                    <path
-                      d="M40 72 Q50 80 60 72"
-                      stroke="#9ca3af"
-                      strokeWidth="2.5"
-                      strokeLinecap="round"
-                    />
-                  </svg>
+                  <img
+                    src="placeholder.jpg"
+                    alt="No image"
+                    className="w-20 h-20 object-cover mb-3 rounded-full border border-[#e2e8f0]"
+                  />
                   <span className="text-[11px] text-[#9ca3af] uppercase tracking-widest">
                     No Image
                   </span>
