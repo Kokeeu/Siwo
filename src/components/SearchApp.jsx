@@ -135,16 +135,38 @@ export default function SearchApp({ animes }) {
                 <div className="aspect-[2/3] flex flex-col items-center justify-center bg-gradient-to-br from-[#f3f4f6] to-[#e5e7eb]">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
-                    className="w-10 h-10 text-[#9ca3af] mb-2"
+                    className="w-14 h-14 mb-3"
+                    viewBox="0 0 100 100"
                     fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    strokeWidth={1.5}
                   >
                     <path
-                      strokeLinecap="round"
+                      d="M50 12 C30 12 15 30 15 55 C15 65 20 75 28 82 C32 85 38 88 50 88 C62 88 68 85 72 82 C80 75 85 65 85 55 C85 30 70 12 50 12 Z"
+                      stroke="#9ca3af"
+                      strokeWidth="3"
+                      fill="#f3f4f6"
                       strokeLinejoin="round"
-                      d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l2.586-2.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                    />
+                    <path
+                      d="M25 35 C22 20 35 10 50 10 C65 10 78 20 75 35 M40 15 C35 25 38 35 42 40 M60 15 C65 25 62 35 58 40"
+                      stroke="#9ca3af"
+                      strokeWidth="2.5"
+                      strokeLinecap="round"
+                    />
+                    <ellipse cx="36" cy="52" rx="7" ry="9" fill="#14b8a6" />
+                    <ellipse cx="64" cy="52" rx="7" ry="9" fill="#14b8a6" />
+                    <circle cx="34" cy="49" r="2" fill="#ffffff" />
+                    <circle cx="62" cy="49" r="2" fill="#ffffff" />
+                    <path
+                      d="M42 72 Q50 78 58 72"
+                      stroke="#9ca3af"
+                      strokeWidth="2.5"
+                      strokeLinecap="round"
+                    />
+                    <path
+                      d="M50 60 L48 66"
+                      stroke="#9ca3af"
+                      strokeWidth="2"
+                      strokeLinecap="round"
                     />
                   </svg>
                   <span className="text-[11px] text-[#9ca3af] uppercase tracking-widest">
