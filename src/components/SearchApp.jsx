@@ -63,23 +63,24 @@ export default function SearchApp({ animes }) {
 
       <section className="relative overflow-hidden">
         <ParticlesBackground />
-        <div className="relative max-w-[1200px] mx-auto px-6 py-20 md:py-24 text-center">
+        <div className="relative max-w-[1200px] mx-auto px-6 py-14 md:py-20 text-center">
           <img
             src="avatar.jpg"
             alt="Siwö"
-            className="w-20 h-20 md:w-24 md:h-24 rounded-full object-cover border border-[#e2e8f0] mx-auto mb-6"
+            className="w-16 h-16 md:w-24 md:h-24 rounded-full object-cover border border-[#e2e8f0] mx-auto mb-5"
           />
-          <h1 className="font-space font-black text-[56px] md:text-[64px] leading-[1.13] tracking-[0.1em] text-[#1d242f] mb-6">
+          <h1 className="font-space font-black text-[42px] md:text-[64px] leading-[1.13] tracking-[0.1em] text-[#1d242f] mb-4">
             Siwö
           </h1>
-          <p className="font-inter text-[18px] leading-[1.5] text-[#6b7280] max-w-xl mx-auto">
+          <p className="font-inter text-[16px] md:text-[18px] leading-[1.5] text-[#6b7280] max-w-xl mx-auto">
             Openings & Endings de anime
           </p>
         </div>
       </section>
 
-      <main className="flex-1 max-w-[1200px] mx-auto px-6 py-16 w-full">
-        <div className="flex flex-col md:flex-row gap-3 mb-10">
+      <main className="flex-1 bg-[#f8fafc] w-full">
+        <div className="max-w-[1200px] mx-auto px-6 py-16 w-full">
+          <div className="flex flex-col md:flex-row gap-3 mb-10">
           <input
             type="text"
             value={query}
@@ -112,13 +113,14 @@ export default function SearchApp({ animes }) {
         </div>
 
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          {displayed.map((anime) => (
+          {displayed.map((anime, index) => (
             <a
               key={`${anime.title}-${anime.year}`}
               href={anime.downloadLink || anime.url}
               target="_blank"
               rel="noopener noreferrer"
-              className={`${GLASS} group rounded-[10px] overflow-hidden transition hover:border-[#14b8a6] hover:shadow-[rgba(0,0,0,0.04)_0px_1px_2px_0px]`}
+              className={`${GLASS} group rounded-[10px] overflow-hidden transition duration-300 hover:border-[#14b8a6] hover:shadow-lg hover:-translate-y-0.5 animate-fade-in-up`}
+              style={{ animationDelay: `${index * 50}ms` }}
             >
               {anime.coverImage ? (
                 <div className="aspect-[2/3] overflow-hidden">
@@ -130,8 +132,22 @@ export default function SearchApp({ animes }) {
                   />
                 </div>
               ) : (
-                <div className="aspect-[2/3] flex items-center justify-center bg-[#f3f4f6]">
-                  <span className="text-[11px] text-[#718096] uppercase tracking-widest">
+                <div className="aspect-[2/3] flex flex-col items-center justify-center bg-gradient-to-br from-[#f3f4f6] to-[#e5e7eb]">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="w-10 h-10 text-[#9ca3af] mb-2"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth={1.5}
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l2.586-2.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                    />
+                  </svg>
+                  <span className="text-[11px] text-[#9ca3af] uppercase tracking-widest">
                     No Image
                   </span>
                 </div>
@@ -155,7 +171,7 @@ export default function SearchApp({ animes }) {
             <button
               type="button"
               onClick={() => setShowAll(true)}
-              className="px-6 py-3 bg-[#14b8a6] hover:bg-[#0d9488] text-white font-inter font-semibold text-[15px] rounded-[6px] transition"
+              className="px-6 py-3 bg-white border border-[#e2e8f0] hover:border-[#14b8a6] hover:text-[#14b8a6] text-[#1d242f] font-inter font-semibold text-[15px] rounded-[6px] transition"
             >
               Ver más
             </button>
@@ -163,14 +179,31 @@ export default function SearchApp({ animes }) {
         )}
 
         {filtered.length === 0 && (
-          <p className="text-center text-[#6b7280] mt-16 text-[16px]">
-            No se encontraron resultados.
-          </p>
+          <div className="flex flex-col items-center text-center mt-20">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="w-12 h-12 text-[#9ca3af] mb-3"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={1.5}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+              />
+            </svg>
+            <p className="text-[#6b7280] text-[16px]">
+              No se encontraron resultados.
+            </p>
+          </div>
         )}
+      </div>
       </main>
 
       <footer className="border-t border-[#e2e8f0] bg-white">
-        <div className="max-w-[1200px] mx-auto px-6 py-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="max-w-[1200px] mx-auto px-6 py-6 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <img
               src="avatar.jpg"
@@ -192,9 +225,6 @@ export default function SearchApp({ animes }) {
               AniTousen
             </a>
           </p>
-          <span className="text-[13px] text-[#9ca3af]">
-            {filtered.length} resultados
-          </span>
         </div>
       </footer>
     </div>
