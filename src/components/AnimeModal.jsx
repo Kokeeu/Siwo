@@ -34,13 +34,13 @@ export default function AnimeModal({ anime, onClose }) {
 
   return (
     <div
-      className="fixed inset-0 z-[100] flex items-start justify-center overflow-y-auto bg-[#0b1120]/60 p-4 backdrop-blur-md animate-modal-in md:items-center md:p-6"
+      className="fixed inset-0 z-[100] flex items-center justify-center overflow-y-auto bg-[#0b1120]/60 p-4 backdrop-blur-md animate-modal-in md:p-6"
       onClick={handleBackdropClick}
       role="dialog"
       aria-modal="true"
       aria-labelledby="anime-modal-title"
     >
-      <div className="relative my-4 w-full max-w-[920px] overflow-hidden rounded-[20px] border border-white/40 bg-white/80 shadow-2xl backdrop-blur-2xl animate-modal-panel-in md:my-0 md:max-h-[90vh]"
+      <div className="relative my-auto w-full max-w-[920px] max-h-[85vh] overflow-y-auto rounded-[20px] border border-white/40 bg-white/80 shadow-2xl backdrop-blur-2xl animate-modal-panel-in md:max-h-[90vh] md:overflow-hidden"
       >
         <button
           type="button"
@@ -54,7 +54,7 @@ export default function AnimeModal({ anime, onClose }) {
         </button>
 
         <div className="grid grid-cols-1 md:grid-cols-[260px_1fr] lg:grid-cols-[300px_1fr]">
-          <div className="relative h-64 w-full overflow-hidden bg-[#f3f4f6] md:h-auto md:min-h-full">
+          <div className="relative h-48 w-full overflow-hidden bg-[#f3f4f6] md:h-auto md:min-h-full">
             {anime.coverImage ? (
               <img
                 src={anime.coverImage}
