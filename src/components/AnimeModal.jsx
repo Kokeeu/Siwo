@@ -1,8 +1,6 @@
-import { useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 
 export default function AnimeModal({ anime, onClose }) {
-  const panelRef = useRef(null);
-
   useEffect(() => {
     const originalOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
@@ -36,20 +34,18 @@ export default function AnimeModal({ anime, onClose }) {
 
   return (
     <div
-      className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-6 bg-[#0b1120]/60 backdrop-blur-md animate-modal-in"
+      className="fixed inset-0 z-[100] flex items-start justify-center overflow-y-auto bg-[#0b1120]/60 p-4 backdrop-blur-md animate-modal-in md:items-center md:p-6"
       onClick={handleBackdropClick}
       role="dialog"
       aria-modal="true"
       aria-labelledby="anime-modal-title"
     >
-      <div
-        ref={panelRef}
-        className="relative w-full max-w-[920px] max-h-[90vh] overflow-hidden rounded-[20px] border border-white/40 bg-white/80 shadow-2xl backdrop-blur-2xl animate-modal-panel-in"
+      <div className="relative my-4 w-full max-w-[920px] overflow-hidden rounded-[20px] border border-white/40 bg-white/80 shadow-2xl backdrop-blur-2xl animate-modal-panel-in md:my-0 md:max-h-[90vh]"
       >
         <button
           type="button"
           onClick={onClose}
-          className="absolute top-4 right-4 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-white/70 text-[#1d242f] shadow-md backdrop-blur-sm transition hover:bg-white hover:text-[#14b8a6]"
+          className="absolute right-3 top-3 z-20 flex h-10 w-10 items-center justify-center rounded-full bg-white/90 text-[#1d242f] shadow-md backdrop-blur-sm transition hover:bg-white hover:text-[#14b8a6]"
           aria-label="Cerrar"
         >
           <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
@@ -57,8 +53,8 @@ export default function AnimeModal({ anime, onClose }) {
           </svg>
         </button>
 
-        <div className="grid md:grid-cols-[280px_1fr] lg:grid-cols-[320px_1fr]">
-          <div className="relative aspect-[2/3] w-full overflow-hidden bg-[#f3f4f6] md:aspect-auto md:h-full">
+        <div className="grid grid-cols-1 md:grid-cols-[260px_1fr] lg:grid-cols-[300px_1fr]">
+          <div className="relative h-64 w-full overflow-hidden bg-[#f3f4f6] md:h-auto md:min-h-full">
             {anime.coverImage ? (
               <img
                 src={anime.coverImage}
@@ -71,15 +67,15 @@ export default function AnimeModal({ anime, onClose }) {
                 <span className="mt-3 text-[11px] uppercase tracking-widest text-[#9ca3af]">No Image</span>
               </div>
             )}
-            <div className="absolute inset-0 pointer-events-none bg-gradient-to-t from-black/30 via-transparent to-transparent md:hidden" />
+            <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent md:hidden" />
           </div>
 
-          <div className="flex flex-col overflow-y-auto p-6 md:p-8">
+          <div className="flex flex-col p-5 md:max-h-[90vh] md:overflow-y-auto md:p-8">
             <div className="mb-4">
               <p className="mb-2 text-[12px] font-semibold uppercase tracking-widest text-[#14b8a6]">
                 {anime.season} {anime.year}
               </p>
-              <h2 id="anime-modal-title" className="font-space text-[22px] font-bold leading-[1.2] text-[#1d242f] md:text-[28px]">
+              <h2 id="anime-modal-title" className="font-space text-[20px] font-bold leading-[1.25] text-[#1d242f] md:text-[26px]">
                 {anime.title}
               </h2>
             </div>
@@ -97,14 +93,14 @@ export default function AnimeModal({ anime, onClose }) {
               </div>
             )}
 
-            <div className="mb-6 grid grid-cols-3 gap-3 md:grid-cols-3">
+            <div className="mb-6 grid grid-cols-3 gap-3">
               <div className="rounded-xl border border-[#e2e8f0]/60 bg-white/60 p-3 text-center backdrop-blur-sm">
                 <p className="text-[11px] uppercase tracking-wider text-[#6b7280]">Score</p>
-                <p className="font-space text-[18px] font-bold text-[#1d242f]">{formatScore(anime.score)}</p>
+                <p className="font-space text-[17px] font-bold text-[#1d242f]">{formatScore(anime.score)}</p>
               </div>
               <div className="rounded-xl border border-[#e2e8f0]/60 bg-white/60 p-3 text-center backdrop-blur-sm">
                 <p className="text-[11px] uppercase tracking-wider text-[#6b7280]">Episodios</p>
-                <p className="font-space text-[18px] font-bold text-[#1d242f]">{anime.episodes ?? '—'}</p>
+                <p className="font-space text-[17px] font-bold text-[#1d242f]">{anime.episodes ?? '—'}</p>
               </div>
               <div className="rounded-xl border border-[#e2e8f0]/60 bg-white/60 p-3 text-center backdrop-blur-sm">
                 <p className="text-[11px] uppercase tracking-wider text-[#6b7280]">Estudio</p>
@@ -116,10 +112,15 @@ export default function AnimeModal({ anime, onClose }) {
 
             {hasDetails ? (
               <div className="mb-6">
-                <h3 className="mb-2 font-space text-[14px] font-bold uppercase tracking-wider text-[#6b7280]">
-                  Sinopsis
-                </h3>
-                <p className="max-h-[160px] overflow-y-auto pr-2 text-[14px] leading-[1.7] text-[#374151]">
+                <div className="mb-2 flex items-center gap-2">
+                  <h3 className="font-space text-[14px] font-bold uppercase tracking-wider text-[#6b7280]">
+                    Sinopsis
+                  </h3>
+                  <span className="rounded-full bg-[#f59e0b]/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-[#d97706]">
+                    en inglés
+                  </span>
+                </div>
+                <p className="text-[14px] leading-[1.7] text-[#374151]">
                   {anime.synopsis || 'Sin sinopsis disponible.'}
                 </p>
               </div>

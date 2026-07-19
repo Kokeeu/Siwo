@@ -6,7 +6,6 @@ import Footer from './Footer.jsx';
 
 const BASE_URL = import.meta.env.BASE_URL || '/';
 const HOME_URL = BASE_URL.endsWith('/') ? BASE_URL : BASE_URL + '/';
-const ABOUT_URL = HOME_URL + 'about';
 
 const GLASS =
   'bg-white/70 backdrop-blur-xl border border-white/60 shadow-[rgba(0,0,0,0.06)_0px_4px_12px_-2px]';
@@ -143,7 +142,7 @@ export default function SearchApp({ animes, generatedAt }) {
       <nav
         className={`fixed top-0 left-0 right-0 z-50 border-b border-white/60 bg-white/80 shadow-[rgba(0,0,0,0.04)_0px_1px_2px_0px] backdrop-blur-xl transition-transform duration-300 ${scrolled ? 'translate-y-0' : '-translate-y-full'}`}
       >
-        <div className="mx-auto flex h-16 max-w-[1200px] items-center justify-between px-6">
+        <div className="mx-auto flex h-16 max-w-[1200px] items-center px-6">
           <a href={HOME_URL} className="flex items-center gap-3">
             <img
               src="avatar.jpg"
@@ -153,12 +152,6 @@ export default function SearchApp({ animes, generatedAt }) {
             <span className="font-space text-[18px] font-bold tracking-[0.02em] text-[#1d242f]">
               Siwö
             </span>
-          </a>
-          <a
-            href={ABOUT_URL}
-            className="text-[14px] font-medium text-[#6b7280] transition hover:text-[#14b8a6]"
-          >
-            Acerca de
           </a>
         </div>
       </nav>
