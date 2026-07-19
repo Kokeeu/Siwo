@@ -2,6 +2,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import AdmZip from 'adm-zip';
+import { Vibrant } from 'node-vibrant/node';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PUBLIC_DIR = path.join(__dirname, '..', 'public');
@@ -13,6 +14,17 @@ const JIKAN_MAX_CONSECUTIVE_FAILURES = 5;
 const MAX_RETRIES = 3;
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+async function extractDominantColor(imageUrl) {
+  try {
+    const palette = await Vibrant.from(imageUrl).getPalette();
+    const swatch = palette.Vibrant || palette.Muted || palette.DarkVibrant || palette.LightVibrant;
+    return swatch?.hex || null;
+  } catch (err) {
+    console.warn(`  ↳ could not extract color: ${err.message}`);
+    return null;
+  }
+}
 
 async function fetchRepoZip() {
   console.log(`Downloading ${ZIP_URL}...`);
@@ -205,6 +217,11 @@ async function fetchAnimeDetails(item, cache) {
   const cached = cache.get(key);
 
   if (cached && cached.status === 'found') {
+    if (cached.coverImage && !cached.dominantColor) {
+      const color = await extractDominantColor(cached.coverImage);
+      cached.dominantColor = color;
+      cache.set(key, cached);
+    }
     console.log(`  ↳ cache hit`);
     return cached;
   }
@@ -246,9 +263,15 @@ async function fetchAnimeDetails(item, cache) {
     }
   }
 
+  let dominantColor = null;
+  if (details?.coverImage) {
+    dominantColor = await extractDominantColor(details.coverImage);
+  }
+
   const cachedEntry = {
     status,
     coverImage: details?.coverImage || null,
+    dominantColor,
     synopsis: details?.synopsis || null,
     genres: details?.genres || [],
     studios: details?.studios || [],
@@ -285,6 +308,7 @@ async function build() {
       url: item.downloadLink,
       downloadLink: item.downloadLink,
       coverImage: details.coverImage,
+      dominantColor: details.dominantColor,
       synopsis: details.synopsis,
       genres: details.genres,
       studios: details.studios,
