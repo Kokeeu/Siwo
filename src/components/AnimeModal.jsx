@@ -64,6 +64,7 @@ export default function AnimeModal({ anime, onClose }) {
   const panelRef = useRef(null);
   const startYRef = useRef(0);
   const scrollTopRef = useRef(0);
+  const isDraggingRef = useRef(false);
   const [dragY, setDragY] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
 
@@ -92,11 +93,12 @@ export default function AnimeModal({ anime, onClose }) {
     scrollTopRef.current = innerScroll ? innerScroll.scrollTop : 0;
     if (scrollTopRef.current > 10) return;
     startYRef.current = e.touches[0].clientY;
+    isDraggingRef.current = true;
     setIsDragging(true);
   };
 
   const handleTouchMove = (e) => {
-    if (!isDragging) return;
+    if (!isDraggingRef.current) return;
     const currentY = e.touches[0].clientY;
     const diff = currentY - startYRef.current;
     if (diff > 0) {
@@ -112,6 +114,7 @@ export default function AnimeModal({ anime, onClose }) {
       onClose();
     } else {
       setDragY(0);
+      isDraggingRef.current = false;
       setIsDragging(false);
     }
   };
@@ -190,7 +193,7 @@ export default function AnimeModal({ anime, onClose }) {
 
           <div
             data-modal-scroll
-            className="flex flex-col gap-6 overflow-y-auto p-5 md:max-h-[90vh] md:flex-1 md:gap-7 md:p-8"
+            className="flex max-h-[calc(85vh-15rem)] flex-col gap-6 overflow-y-auto p-5 md:max-h-[90vh] md:flex-1 md:gap-7 md:p-8"
           >
             <div>
               <p className="mb-2 text-[11px] font-bold uppercase tracking-[0.15em] text-[#14b8a6]">
