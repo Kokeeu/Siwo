@@ -18,10 +18,6 @@ function AnimeCard({ anime, index, onClick }) {
       className={`group relative overflow-hidden rounded-[14px] border border-white/60 bg-white/70 text-left shadow-[rgba(0,0,0,0.06)_0px_4px_12px_-2px] backdrop-blur-xl transition-all duration-300 ease-out hover:-translate-y-0.5 hover:border-[#14b8a6]/40 hover:shadow-[rgba(20,184,166,0.12)_0px_12px_24px_-4px]`}
     >
       <div className="animate-fade-in-up" style={{ animationDelay: `${index * 40}ms` }}>
-        <div className="pointer-events-none absolute inset-0 z-10 rounded-[14px] opacity-0 transition-opacity duration-300 group-hover:opacity-100">
-          <div className="absolute inset-0 rounded-[14px] border-2 border-[#14b8a6]/20" />
-        </div>
-
         {anime.coverImage ? (
           <div className="aspect-[2/3] overflow-hidden">
             <img
