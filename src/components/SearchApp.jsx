@@ -15,6 +15,12 @@ function useTilt(ref) {
     const el = ref.current;
     if (!el) return;
 
+    const hoverFine = typeof window !== 'undefined'
+      && window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+    const reducedMotion = typeof window !== 'undefined'
+      && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (!hoverFine || reducedMotion) return;
+
     const handleMove = (e) => {
       const rect = el.getBoundingClientRect();
       const x = e.clientX - rect.left;
@@ -103,6 +109,65 @@ export default function SearchApp({ animes, generatedAt }) {
   useEffect(() => {
     const timer = setTimeout(() => setLoading(false), 250);
     return () => clearTimeout(timer);
+  }, []);
+
+  const openingFromUrl = useRef(false);
+  const wasOpen = useRef(false);
+  const isFirstSync = useRef(true);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const params = new URLSearchParams(window.location.search);
+    const q = params.get('q') || '';
+    const s = params.get('season') || 'All';
+    const y = params.get('year') || 'All';
+    const animeIdx = params.get('anime');
+    if (q) setQuery(q);
+    if (s !== 'All') setSeason(s);
+    if (y !== 'All') setYear(y);
+    if (animeIdx !== null) {
+      const idx = parseInt(animeIdx, 10);
+      if (!isNaN(idx) && idx >= 0 && idx < animes.length) {
+        openingFromUrl.current = true;
+        setSelectedAnime(animes[idx]);
+      }
+    }
+  }, [animes]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (isFirstSync.current) {
+      isFirstSync.current = false;
+      wasOpen.current = !!selectedAnime;
+      return;
+    }
+    const params = new URLSearchParams();
+    if (query.trim()) params.set('q', query.trim());
+    if (season !== 'All') params.set('season', season);
+    if (year !== 'All') params.set('year', String(year));
+    const isOpen = !!selectedAnime;
+    if (selectedAnime) {
+      const idx = animes.indexOf(selectedAnime);
+      if (idx >= 0) params.set('anime', String(idx));
+    }
+    const search = params.toString();
+    const url = window.location.pathname + (search ? '?' + search : '');
+    if (isOpen && !wasOpen.current && !openingFromUrl.current) {
+      window.history.pushState(null, '', url);
+    } else {
+      window.history.replaceState(null, '', url);
+    }
+    wasOpen.current = isOpen;
+    openingFromUrl.current = false;
+  }, [query, season, year, selectedAnime, animes]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const handlePopState = () => {
+      setSelectedAnime((prev) => (prev ? null : prev));
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
   }, []);
 
   const seasons = useMemo(

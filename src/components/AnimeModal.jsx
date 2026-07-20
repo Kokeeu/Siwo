@@ -83,6 +83,16 @@ export default function AnimeModal({ anime, onClose }) {
     };
   }, [onClose]);
 
+  useEffect(() => {
+    if (!panelRef.current) return;
+    const innerScroll = panelRef.current.querySelector('[data-modal-scroll]');
+    if (innerScroll) innerScroll.scrollTop = 0;
+    setDragY(0);
+    isDraggingRef.current = false;
+    setIsDragging(false);
+    startYRef.current = 0;
+  }, [anime]);
+
   const handleBackdropClick = (e) => {
     if (e.target === e.currentTarget) onClose();
   };
