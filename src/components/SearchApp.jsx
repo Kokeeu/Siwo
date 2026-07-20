@@ -10,81 +10,53 @@ const HOME_URL = BASE_URL.endsWith('/') ? BASE_URL : BASE_URL + '/';
 const GLASS =
   'bg-white/70 backdrop-blur-xl border border-white/60 shadow-[rgba(0,0,0,0.06)_0px_4px_12px_-2px]';
 
-function useTilt(ref) {
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-
-    const hoverFine = typeof window !== 'undefined'
-      && window.matchMedia('(hover: hover) and (pointer: fine)').matches;
-    const reducedMotion = typeof window !== 'undefined'
-      && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (!hoverFine || reducedMotion) return;
-
-    const handleMove = (e) => {
-      const rect = el.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
-      const cx = rect.width / 2;
-      const cy = rect.height / 2;
-      const rx = (y - cy) / cy;
-      const ry = (cx - x) / cx;
-      el.style.transform = `perspective(1000px) rotateX(${rx * 4}deg) rotateY(${ry * 4}deg) translateZ(8px) scale(1.02)`;
-    };
-
-    const handleLeave = () => {
-      el.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) translateZ(0) scale(1)';
-    };
-
-    el.addEventListener('mousemove', handleMove);
-    el.addEventListener('mouseleave', handleLeave);
-
-    return () => {
-      el.removeEventListener('mousemove', handleMove);
-      el.removeEventListener('mouseleave', handleLeave);
-    };
-  }, [ref]);
-}
-
 function AnimeCard({ anime, index, onClick }) {
-  const ref = useRef(null);
-  useTilt(ref);
-
   return (
     <button
-      ref={ref}
       type="button"
       onClick={() => onClick(anime)}
-      className={`group relative overflow-hidden rounded-[14px] border border-white/60 bg-white/70 text-left shadow-[rgba(0,0,0,0.06)_0px_4px_12px_-2px] backdrop-blur-xl transition-all duration-300 ease-out hover:border-[#14b8a6]/40 hover:shadow-[rgba(20,184,166,0.12)_0px_12px_24px_-4px] animate-fade-in-up`}
-      style={{ animationDelay: `${index * 40}ms`, transformStyle: 'preserve-3d' }}
+      className={`group relative overflow-hidden rounded-[14px] border border-white/60 bg-white/70 text-left shadow-[rgba(0,0,0,0.06)_0px_4px_12px_-2px] backdrop-blur-xl transition-all duration-300 ease-out hover:-translate-y-0.5 hover:border-[#14b8a6]/40 hover:shadow-[rgba(20,184,166,0.12)_0px_12px_24px_-4px]`}
     >
-      <div className="pointer-events-none absolute inset-0 z-10 rounded-[14px] opacity-0 transition-opacity duration-300 group-hover:opacity-100">
-        <div className="absolute inset-0 rounded-[14px] border-2 border-[#14b8a6]/20" />
-      </div>
-
-      {anime.coverImage ? (
-        <div className="aspect-[2/3] overflow-hidden">
-          <img
-            src={anime.coverImage}
-            alt={anime.title}
-            loading="lazy"
-            className="h-full w-full object-cover transition duration-500 group-hover:scale-110"
-          />
+      <div className="animate-fade-in-up" style={{ animationDelay: `${index * 40}ms` }}>
+        <div className="pointer-events-none absolute inset-0 z-10 rounded-[14px] opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+          <div className="absolute inset-0 rounded-[14px] border-2 border-[#14b8a6]/20" />
         </div>
-      ) : (
-        <div className="aspect-[2/3] flex flex-col items-center justify-center bg-gradient-to-br from-[#f8fafc] to-[#e2e8f0]">
-          <img src="placeholder.png" alt="No image" className="mb-3 h-24 w-24 rounded-full opacity-70" />
-          <span className="text-[11px] uppercase tracking-widest text-[#9ca3af]">No Image</span>
-        </div>
-      )}
 
-      <div className="p-3">
-        <h2 className="line-clamp-2 font-inter text-[14px] font-semibold leading-[1.4] text-[#1d242f] transition group-hover:text-[#14b8a6]">
-          {anime.title}
-        </h2>
-        <p className="mt-1 text-[12px] text-[#6b7280]">
-          {anime.season} {anime.year}
-        </p>
+        {anime.coverImage ? (
+          <div className="aspect-[2/3] overflow-hidden">
+            <img
+              src={anime.coverImage}
+              alt={anime.title}
+              loading="lazy"
+              className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+            />
+          </div>
+        ) : (
+          <div className="aspect-[2/3] flex flex-col items-center justify-center bg-gradient-to-br from-[#f8fafc] to-[#e2e8f0]">
+            <img src="placeholder.png" alt="No image" className="mb-3 h-24 w-24 rounded-full opacity-70" />
+            <span className="text-[11px] uppercase tracking-widest text-[#9ca3af]">No Image</span>
+          </div>
+        )}
+
+        {anime.score != null && anime.score !== undefined && (
+          <div className="pointer-events-none absolute top-2 right-2 z-20 flex items-center gap-1 rounded-full border border-white/60 bg-white/85 px-2 py-0.5 shadow-sm backdrop-blur-md">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" viewBox="0 0 24 24" fill="currentColor" stroke="none" style={{ color: '#f59e0b' }}>
+              <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
+            </svg>
+            <span className="font-space text-[11px] font-bold text-[#1d242f]">
+              {Number(anime.score).toFixed(1)}
+            </span>
+          </div>
+        )}
+
+        <div className="p-3">
+          <h2 className="line-clamp-2 font-inter text-[14px] font-semibold leading-[1.4] text-[#1d242f] transition group-hover:text-[#14b8a6]">
+            {anime.title}
+          </h2>
+          <p className="mt-1 text-[12px] text-[#6b7280]">
+            {anime.season} {anime.year}
+          </p>
+        </div>
       </div>
     </button>
   );
