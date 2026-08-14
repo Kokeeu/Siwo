@@ -29,7 +29,7 @@ function AnimeCard({ anime, index, onClick }) {
           </div>
         ) : (
           <div className="aspect-[2/3] flex flex-col items-center justify-center bg-gradient-to-br from-[#f8fafc] to-[#e2e8f0]">
-            <img src="placeholder.png" alt="No image" className="mb-3 h-24 w-24 rounded-full opacity-70" />
+            <img src={`${HOME_URL}placeholder.png`} alt="No image" className="mb-3 h-24 w-24 rounded-full opacity-70" />
             <span className="text-[11px] uppercase tracking-widest text-[#9ca3af]">No Image</span>
           </div>
         )}
@@ -178,7 +178,7 @@ export default function SearchApp({ animes, generatedAt }) {
         <div className="mx-auto flex h-16 max-w-[1200px] items-center px-6">
           <a href={HOME_URL} className="flex items-center gap-3">
             <img
-              src="avatar.jpg"
+              src={`${HOME_URL}avatar.jpg`}
               alt="Siwö"
               className="h-8 w-8 rounded-full border border-[#e2e8f0] object-cover"
             />
@@ -194,7 +194,7 @@ export default function SearchApp({ animes, generatedAt }) {
         <div className="relative mx-auto max-w-[1200px] px-6 py-14 text-center md:py-20">
           <div className="mx-auto mb-5 h-fit w-fit">
             <img
-              src="avatar.jpg"
+              src={`${HOME_URL}avatar.jpg`}
               alt="Siwö"
               className="h-16 w-16 rounded-full border border-[#e2e8f0] object-cover shadow-[0_8px_30px_rgba(0,0,0,0.08)] md:h-24 md:w-24"
             />

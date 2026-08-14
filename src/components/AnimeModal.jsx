@@ -1,5 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 
+const BASE_URL = import.meta.env.BASE_URL || '/';
+const HOME_URL = BASE_URL.endsWith('/') ? BASE_URL : BASE_URL + '/';
+
 function hexToRgba(hex, alpha = 1) {
   if (!hex) return null;
   const m = hex.replace('#', '');
@@ -137,8 +140,8 @@ export default function AnimeModal({ anime, onClose }) {
   const hasDetails =
     anime.synopsis ||
     (anime.genres && anime.genres.length > 0) ||
-    anime.score ||
-    anime.episodes ||
+    anime.score != null ||
+    anime.episodes != null ||
     (anime.studios && anime.studios.length > 0);
 
   const color = anime.dominantColor;
@@ -188,7 +191,7 @@ export default function AnimeModal({ anime, onClose }) {
               />
             ) : (
               <div className="flex h-full flex-col items-center justify-center bg-gradient-to-br from-[#f3f4f6] to-[#e2e8f0]">
-                <img src="placeholder.png" alt="No image" className="h-24 w-24 rounded-full opacity-70" />
+                <img src={`${HOME_URL}placeholder.png`} alt="No image" className="h-24 w-24 rounded-full opacity-70" />
                 <span className="mt-3 text-[11px] uppercase tracking-widest text-[#9ca3af]">No Image</span>
               </div>
             )}
@@ -295,6 +298,19 @@ export default function AnimeModal({ anime, onClose }) {
                     <path strokeLinecap="round" strokeLinejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
                   </svg>
                   MyAnimeList
+                </a>
+              )}
+              {anime.sourceUrl && anime.sourceUrl !== anime.malUrl && (
+                <a
+                  href={anime.sourceUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 rounded-xl border border-[#e2e8f0] bg-white/70 px-5 py-3 text-[14px] font-semibold text-[#1d242f] transition hover:border-[#14b8a6] hover:text-[#14b8a6]"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                  </svg>
+                  {anime.sourceLabel || 'Fuente'}
                 </a>
               )}
               {anime.trailerUrl && (

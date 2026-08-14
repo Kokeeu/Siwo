@@ -22,7 +22,7 @@ npm install
 npm run dev
 ```
 
-La página estará disponible en `http://localhost:4321/anitousen-search/`.
+La página estará disponible en `http://localhost:4321/` durante el desarrollo local. En GitHub Pages se publica en `/anitousen-search/`.
 
 ## Build
 
@@ -31,6 +31,8 @@ npm run build
 ```
 
 Esto descarga el repo fuente, genera `public/data.json` y construye el sitio en `dist/`.
+
+La generación es tolerante a fallos: AniList se usa como proveedor principal de metadatos y Kitsu como respaldo. Si ambos servicios no están disponibles, el índice básico de AniTousen (título, temporada, año y enlace) se publica igualmente. No se usa una base de datos.
 
 ## Despliegue en GitHub Pages
 
@@ -76,3 +78,7 @@ anitousen-search/
 
 - El `data.json` se regenera automáticamente en cada build, por lo que no es necesario subirlo a git.
 - El workflow de GitHub Actions se ejecuta en cada push y una vez al día (cron) para mantener el índice actualizado.
+- GitHub Actions conserva `data.json` y `metadata-cache.json` como caché de build para que una caída temporal de las APIs no bloquee el sitio. La caché no es una base de datos ni forma parte del runtime.
+- La caché de metadatos caduca por defecto a los 14 días. Se puede ajustar con `METADATA_CACHE_TTL_DAYS`.
+- Para una actualización rápida sin enriquecer metadatos se puede ejecutar `npm run build-index -- --skip-metadata`; el índice básico seguirá generándose.
+- `npm run dev` y `npm run build` enriquecen el índice con AniList y Kitsu. Las ejecuciones posteriores reutilizan `metadata-cache.json` y son mucho más rápidas.

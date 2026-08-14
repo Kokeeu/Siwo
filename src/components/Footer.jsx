@@ -24,7 +24,7 @@ export default function Footer({ generatedAt }) {
           <div className="sm:col-span-2 lg:col-span-2">
             <div className="mb-4 flex items-center gap-3">
               <img
-                src="avatar.jpg"
+                src={`${HOME_URL}avatar.jpg`}
                 alt="Siwö"
                 className="h-10 w-10 rounded-full border border-[#e2e8f0] object-cover"
               />

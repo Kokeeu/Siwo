@@ -27,10 +27,27 @@ jobs:
         with:
           node-version: '22'
           cache: 'npm'
+      - name: Restore generated index cache
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            public/data.json
+            public/metadata-cache.json
+          key: anime-index-${{ runner.os }}-${{ hashFiles('package-lock.json') }}-${{ github.run_id }}
+          restore-keys: |
+            anime-index-${{ runner.os }}-${{ hashFiles('package-lock.json') }}-
       - name: Install dependencies
         run: npm ci
       - name: Build
         run: npm run build
+      - name: Save generated index cache
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            public/data.json
+            public/metadata-cache.json
+          key: anime-index-${{ runner.os }}-${{ hashFiles('package-lock.json') }}-${{ github.run_id }}
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
