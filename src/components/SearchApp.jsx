@@ -1,57 +1,65 @@
 import { useState, useMemo, useEffect, useRef } from 'react';
-import ParticlesBackground from './ParticlesBackground.jsx';
 import AnimeModal from './AnimeModal.jsx';
 import AnimeSkeleton from './AnimeSkeleton.jsx';
 import Footer from './Footer.jsx';
+import { formatSeason } from '../utils/season.js';
 
 const BASE_URL = import.meta.env.BASE_URL || '/';
 const HOME_URL = BASE_URL.endsWith('/') ? BASE_URL : BASE_URL + '/';
 
-const GLASS =
-  'bg-white/70 backdrop-blur-xl border border-white/60 shadow-[rgba(0,0,0,0.06)_0px_4px_12px_-2px]';
-
 function AnimeCard({ anime, index, onClick }) {
+  const itemNumber = String(index + 1).padStart(2, '0');
+  const entranceDelay = Math.min(index, 12) * 55;
+
   return (
     <button
       type="button"
       onClick={() => onClick(anime)}
-      className={`group relative overflow-hidden rounded-[14px] border border-white/60 bg-white/70 text-left shadow-[rgba(0,0,0,0.06)_0px_4px_12px_-2px] backdrop-blur-xl transition-all duration-300 ease-out hover:-translate-y-0.5 hover:border-[#14b8a6]/40 hover:shadow-[rgba(20,184,166,0.12)_0px_12px_24px_-4px]`}
+      className="anime-card group relative text-left"
+      aria-label={`Ver detalles de ${anime.title}`}
     >
-      <div className="animate-fade-in-up" style={{ animationDelay: `${index * 40}ms` }}>
+      <div className="animate-fade-in-up" style={{ animationDelay: `${entranceDelay}ms` }}>
+        <div className="anime-card-index" aria-hidden="true">
+          <span>FILE</span>
+          <strong>{itemNumber}</strong>
+        </div>
+
         {anime.coverImage ? (
-          <div className="aspect-[2/3] overflow-hidden">
+          <div className="anime-card-cover">
             <img
               src={anime.coverImage}
               alt={anime.title}
               loading="lazy"
-              className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+              className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.04]"
             />
+            <span className="anime-card-jp" aria-hidden="true">音楽</span>
           </div>
         ) : (
-          <div className="aspect-[2/3] flex flex-col items-center justify-center bg-gradient-to-br from-[#f8fafc] to-[#e2e8f0]">
-            <img src={`${HOME_URL}placeholder.png`} alt="No image" className="mb-3 h-24 w-24 rounded-full opacity-70" />
-            <span className="text-[11px] uppercase tracking-widest text-[#9ca3af]">No Image</span>
+          <div className="anime-card-cover flex flex-col items-center justify-center bg-[#ece7dc]">
+            <img src={`${HOME_URL}placeholder.png`} alt="Sin portada" className="mb-3 h-24 w-24 border-2 border-black object-cover opacity-70" />
+            <span className="text-[10px] font-black uppercase tracking-[.2em] text-black/50">No image</span>
           </div>
         )}
 
         {anime.score != null && anime.score !== undefined && (
-          <div className="pointer-events-none absolute top-2 right-2 z-20 flex items-center gap-1 rounded-full border border-white/60 bg-white/85 px-2 py-0.5 shadow-sm backdrop-blur-md">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" viewBox="0 0 24 24" fill="currentColor" stroke="none" style={{ color: '#f59e0b' }}>
-              <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
-            </svg>
-            <span className="font-space text-[11px] font-bold text-[#1d242f]">
-              {Number(anime.score).toFixed(1)}
-            </span>
+          <div className="anime-card-score">
+            <span aria-hidden="true">★</span>
+            <strong>{Number(anime.score).toFixed(1)}</strong>
           </div>
         )}
 
-        <div className="p-3">
-          <h2 className="line-clamp-2 font-inter text-[14px] font-semibold leading-[1.4] text-[#1d242f] transition group-hover:text-[#14b8a6]">
+        <div className="anime-card-copy">
+          <div className="anime-card-meta">
+            <span>{formatSeason(anime.season)}</span>
+            <span>{anime.year || '—'}</span>
+          </div>
+          <h2 className="line-clamp-2">
             {anime.title}
           </h2>
-          <p className="mt-1 text-[12px] text-[#6b7280]">
-            {anime.season} {anime.year}
-          </p>
+          <div className="anime-card-action" aria-hidden="true">
+            <span>Ver ficha</span>
+            <span>↗</span>
+          </div>
         </div>
       </div>
     </button>
@@ -138,6 +146,34 @@ export default function SearchApp({ animes, generatedAt }) {
     return () => window.removeEventListener('popstate', handlePopState);
   }, []);
 
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const targets = document.querySelectorAll('[data-reveal]');
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    if (reducedMotion || !('IntersectionObserver' in window)) {
+      targets.forEach((target) => target.classList.add('is-visible'));
+      return;
+    }
+
+    targets.forEach((target) => target.classList.add('reveal-pending'));
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          entry.target.classList.add('is-visible');
+          observer.unobserve(entry.target);
+        });
+      },
+      { threshold: 0.12, rootMargin: '0px 0px -8% 0px' }
+    );
+
+    targets.forEach((target) => observer.observe(target));
+    return () => observer.disconnect();
+  }, [loading]);
+
   const seasons = useMemo(
     () => ['All', ...new Set(animes.map((a) => a.season))],
     [animes]
@@ -165,88 +201,153 @@ export default function SearchApp({ animes, generatedAt }) {
   const showLoadMore = !hasFilters && filtered.length > 20 && !showAll;
 
   return (
-    <div className="relative flex min-h-screen flex-col overflow-hidden font-inter">
-      <div className="pointer-events-none fixed inset-0 z-0">
-        <div className="absolute -left-[20%] top-[5%] h-[500px] w-[500px] rounded-full bg-[#14b8a6]/8 blur-[120px]" />
-        <div className="absolute -right-[10%] top-[30%] h-[400px] w-[400px] rounded-full bg-[#38bdf8]/8 blur-[120px]" />
-        <div className="absolute bottom-[5%] left-[30%] h-[450px] w-[450px] rounded-full bg-[#f59e0b]/8 blur-[140px]" />
-      </div>
+    <div className="manga-page relative flex min-h-screen flex-col overflow-hidden font-inter">
+      <div className="paper-grid pointer-events-none fixed inset-0 z-0" aria-hidden="true" />
 
       <nav
-        className={`fixed top-0 left-0 right-0 z-50 border-b border-white/60 bg-white/80 shadow-[rgba(0,0,0,0.04)_0px_1px_2px_0px] backdrop-blur-xl transition-transform duration-300 ${scrolled ? 'translate-y-0' : '-translate-y-full'}`}
+        className={`manga-nav fixed left-0 right-0 top-0 z-50 transition-transform duration-300 ${scrolled ? 'translate-y-0' : '-translate-y-full'}`}
       >
-        <div className="mx-auto flex h-16 max-w-[1200px] items-center px-6">
-          <a href={HOME_URL} className="flex items-center gap-3">
+        <div className="mx-auto flex h-16 max-w-[1320px] items-center justify-between px-5 md:px-8">
+          <a href={HOME_URL} className="flex items-center gap-3" aria-label="Volver al inicio de Siwö">
             <img
               src={`${HOME_URL}avatar.jpg`}
               alt="Siwö"
-              className="h-8 w-8 rounded-full border border-[#e2e8f0] object-cover"
+              className="h-9 w-9 border-2 border-black object-cover"
             />
-            <span className="font-space text-[18px] font-bold tracking-[0.02em] text-[#1d242f]">
-              Siwö
-            </span>
+            <span className="font-display text-[18px] uppercase tracking-[-0.04em] text-black">Siwö</span>
           </a>
+          <div className="hidden items-center gap-4 text-[10px] font-black uppercase tracking-[0.2em] md:flex">
+            <span>Anime music index</span>
+            <span className="bg-black px-2 py-1 text-white">音楽検索</span>
+          </div>
         </div>
       </nav>
 
-      <section className="relative z-10 overflow-hidden">
-        <ParticlesBackground />
-        <div className="relative mx-auto max-w-[1200px] px-6 py-14 text-center md:py-20">
-          <div className="mx-auto mb-5 h-fit w-fit">
-            <img
-              src={`${HOME_URL}avatar.jpg`}
-              alt="Siwö"
-              className="h-16 w-16 rounded-full border border-[#e2e8f0] object-cover shadow-[0_8px_30px_rgba(0,0,0,0.08)] md:h-24 md:w-24"
-            />
+      <section className="manga-hero relative z-10 overflow-hidden" aria-labelledby="hero-title">
+        <div className="hero-side-label" aria-hidden="true">
+          <span>SIWÖ ARCHIVE</span>
+          <span>VOL. 01</span>
+        </div>
+
+        <div className="hero-shell">
+          <div className="hero-kicker">
+            <span className="hero-kicker-mark">＊</span>
+            <span>Openings / Endings</span>
+            <span className="hero-kicker-jp">アニメ音楽</span>
           </div>
-          <h1 className="mb-4 font-space text-[42px] font-black leading-[1.13] tracking-[0.1em] text-[#1d242f] md:text-[64px]">
-            Siwö
-          </h1>
-          <p className="mx-auto max-w-xl font-inter text-[16px] leading-[1.5] text-[#6b7280] md:text-[18px]">
-            Openings & Endings de anime
-          </p>
+
+          <div className="hero-collage">
+            <div className="hero-copy">
+              <p className="hero-eyebrow">Tu archivo de canciones anime</p>
+              <h1 id="hero-title" className="hero-title">
+                <span>ANIME</span>
+                <span className="hero-title-blue">SOUND</span>
+                <span>ARCHIVE</span>
+              </h1>
+              <p className="hero-intro">
+                Encuentra ese opening que no sale de tu cabeza. Explora, escucha y descarga la música de tus series favoritas.
+              </p>
+
+              <div className="hero-stats" aria-label="Resumen del archivo">
+                <div><strong>{animes.length}</strong><span>series</span></div>
+                <div><strong>OP + ED</strong><span>colección</span></div>
+                <div><strong>毎週</strong><span>actualizado</span></div>
+              </div>
+            </div>
+
+            <div className="hero-art" aria-label="Ilustración manga de Siwö">
+              <div className="hero-art-blue" aria-hidden="true">音</div>
+              <div className="hero-art-yellow" aria-hidden="true">楽</div>
+              <div className="hero-frame hero-frame-top" aria-hidden="true">
+                <img src={`${HOME_URL}avatar.jpg`} alt="" />
+              </div>
+              <img className="hero-character" src={`${HOME_URL}avatar.jpg`} alt="Retrato manga de Siwö" />
+              <div className="hero-stamp" aria-hidden="true">
+                <span>LISTEN</span>
+                <strong>01</strong>
+              </div>
+            </div>
+          </div>
+
+          <a className="hero-scroll" href="#explorar">
+            <span>Explorar archivo</span>
+            <span aria-hidden="true">↓</span>
+          </a>
         </div>
       </section>
 
-      <main className="relative z-10 flex-1">
-        <div className="mx-auto max-w-[1200px] px-6 py-16">
-          <div className="mb-10 flex flex-col gap-3 md:flex-row">
-            <input
-              type="text"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Buscar anime..."
-              className={`${GLASS} flex-1 rounded-[12px] px-4 py-3 text-[#111827] placeholder:text-[#9ca3af] outline-none transition focus:border-[#14b8a6] focus:ring-2 focus:ring-[#14b8a6]/20`}
-            />
-            <select
-              value={season}
-              onChange={(e) => setSeason(e.target.value)}
-              className={`${GLASS} min-w-[140px] cursor-pointer appearance-none rounded-[12px] px-4 py-3 text-[#111827] outline-none focus:border-[#14b8a6] focus:ring-2 focus:ring-[#14b8a6]/20`}
-            >
-              {seasons.map((s) => (
-                <option key={s} value={s}>
-                  {s === 'All' ? 'Temporada' : s}
-                </option>
-              ))}
-            </select>
-            <select
-              value={year}
-              onChange={(e) => setYear(e.target.value)}
-              className={`${GLASS} min-w-[120px] cursor-pointer appearance-none rounded-[12px] px-4 py-3 text-[#111827] outline-none focus:border-[#14b8a6] focus:ring-2 focus:ring-[#14b8a6]/20`}
-            >
-              {years.map((y) => (
-                <option key={y} value={y}>
-                  {y === 'All' ? 'Año' : y}
-                </option>
-              ))}
-            </select>
-          </div>
+      <main id="explorar" className="relative z-10 flex-1 scroll-mt-20">
+        <section className="archive-section">
+          <div className="mx-auto max-w-[1320px] px-5 py-16 md:px-8 md:py-24">
+            <header className="archive-header" data-reveal>
+              <div>
+                <p className="archive-overline"><span>02</span> Explora la colección</p>
+                <h2>ENCUENTRA<br /><span>TU CANCIÓN</span></h2>
+              </div>
+              <p className="archive-header-jp" aria-hidden="true">検索<br />音楽<br />一覧</p>
+            </header>
+
+            <div className="search-panel" role="search" data-reveal>
+              <div className="search-field">
+                <label htmlFor="anime-search">Buscar por título</label>
+                <div className="search-input-wrap">
+                  <span aria-hidden="true">⌕</span>
+                  <input
+                    id="anime-search"
+                    type="search"
+                    value={query}
+                    onChange={(e) => setQuery(e.target.value)}
+                    placeholder="Escribe el nombre de un anime..."
+                  />
+                  {query && (
+                    <button type="button" onClick={() => setQuery('')} aria-label="Limpiar búsqueda">×</button>
+                  )}
+                </div>
+              </div>
+
+              <div className="filter-field">
+                <label htmlFor="season-filter">Temporada</label>
+                <select id="season-filter" value={season} onChange={(e) => setSeason(e.target.value)}>
+                  {seasons.map((s) => (
+                    <option key={s} value={s}>{s === 'All' ? 'Todas' : formatSeason(s)}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="filter-field">
+                <label htmlFor="year-filter">Año</label>
+                <select id="year-filter" value={year} onChange={(e) => setYear(e.target.value)}>
+                  {years.map((y) => (
+                    <option key={y} value={y}>{y === 'All' ? 'Todos' : y}</option>
+                  ))}
+                </select>
+              </div>
+
+              {hasFilters && (
+                <button
+                  type="button"
+                  className="clear-filters"
+                  onClick={() => {
+                    setQuery('');
+                    setSeason('All');
+                    setYear('All');
+                  }}
+                >
+                  Limpiar<br />filtros
+                </button>
+              )}
+            </div>
+
+            <div className="results-bar" aria-live="polite" data-reveal>
+              <p><strong>{filtered.length}</strong> resultados en el archivo</p>
+              <span>{hasFilters ? 'Filtros activos' : 'Selección reciente'} // 音楽</span>
+            </div>
 
           {loading ? (
             <AnimeSkeleton count={20} />
           ) : (
             <>
-              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+              <div className="anime-grid">
                 {displayed.map((anime, index) => (
                   <AnimeCard
                     key={`${anime.title}-${anime.year}`}
@@ -258,41 +359,31 @@ export default function SearchApp({ animes, generatedAt }) {
               </div>
 
               {showLoadMore && (
-                <div className="mt-10 flex justify-center">
+                <div className="mt-14 flex justify-center md:mt-20">
                   <button
                     type="button"
                     onClick={() => setShowAll(true)}
-                    className="relative overflow-hidden rounded-[12px] border border-[#e2e8f0] bg-white px-8 py-3 font-inter text-[15px] font-semibold text-[#1d242f] shadow-sm transition hover:-translate-y-0.5 hover:border-[#14b8a6] hover:text-[#14b8a6] hover:shadow-md"
+                    className="load-more-button"
                   >
-                    Ver más
+                    <span>Ver todo el archivo</span>
+                    <span aria-hidden="true">＋</span>
                   </button>
                 </div>
               )}
 
               {filtered.length === 0 && (
-                <div className="mt-20 flex flex-col items-center text-center">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="mb-3 h-12 w-12 text-[#9ca3af]"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    strokeWidth={1.5}
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                    />
-                  </svg>
-                  <p className="text-[16px] text-[#6b7280]">
-                    No se encontraron resultados.
-                  </p>
+                <div className="empty-state">
+                  <span aria-hidden="true">404</span>
+                  <div>
+                    <h3>Sin coincidencias</h3>
+                    <p>Prueba con otro título, temporada o año.</p>
+                  </div>
                 </div>
               )}
             </>
           )}
-        </div>
+          </div>
+        </section>
       </main>
 
       <Footer generatedAt={generatedAt} />

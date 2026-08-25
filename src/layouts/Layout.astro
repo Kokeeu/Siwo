@@ -7,11 +7,11 @@ const baseUrl = import.meta.env.BASE_URL.endsWith('/')
   : import.meta.env.BASE_URL + '/';
 
 const siteUrl = new URL(baseUrl, Astro.site).href.replace(/\/$/, '');
-const pageTitle = title || 'Siwö - OP and ED';
+const pageTitle = title || 'Siwö — Anime Sound Archive';
 const pageDescription =
   description ||
-  'Siwö es un buscador de openings y endings de anime. Datos de AniTousen, imágenes y detalles por Jikan y AniList.';
-const ogImage = `${siteUrl}/avatar.jpg`;
+  'Explora openings y endings de anime en un archivo visual inspirado en el diseño editorial japonés.';
+const ogImage = `${siteUrl}/og.png`;
 const canonical = `${siteUrl}/`;
 ---
 
@@ -47,11 +47,11 @@ const canonical = `${siteUrl}/`;
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;700;900&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=DM+Sans:wght@400;500;600;700&family=Noto+Sans+JP:wght@500;700;900&display=swap"
       rel="stylesheet"
     />
   </head>
-  <body class="antialiased min-h-screen bg-[#ffffff] text-[#111827] font-inter">
+  <body class="antialiased min-h-screen bg-[#f4f0e7] text-[#111111] font-inter">
     <slot />
   </body>
 </html>

@@ -18,49 +18,63 @@ export default function Footer({ generatedAt }) {
   const updateDate = formatDate(generatedAt);
 
   return (
-    <footer className="relative z-10 border-t border-[#e2e8f0]/80 bg-white/80 backdrop-blur-md">
-      <div className="mx-auto max-w-[1200px] px-6 py-10">
-        <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
-          <div className="sm:col-span-2 lg:col-span-2">
-            <div className="mb-4 flex items-center gap-3">
+    <footer className="manga-footer relative z-10">
+      <div className="footer-ticker" aria-hidden="true">
+        <div className="footer-ticker-track">
+          {[0, 1].map((group) => (
+            <div className="footer-ticker-group" key={group}>
+              <span>ANIME SOUND ARCHIVE</span>
+              <span>音楽検索</span>
+              <span>OPENINGS + ENDINGS</span>
+              <span>SIWÖ / 2026</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="mx-auto max-w-[1320px] px-5 py-14 md:px-8 md:py-20">
+        <div className="footer-grid" data-reveal>
+          <div className="footer-brand">
+            <div className="mb-5 flex items-center gap-4">
               <img
                 src={`${HOME_URL}avatar.jpg`}
                 alt="Siwö"
-                className="h-10 w-10 rounded-full border border-[#e2e8f0] object-cover"
+                className="h-14 w-14 border-2 border-white object-cover"
               />
-              <span className="font-space text-[20px] font-bold text-[#1d242f]">Siwö</span>
+              <div>
+                <span className="font-display block text-[28px] uppercase leading-none">Siwö</span>
+                <span className="text-[8px] font-black uppercase tracking-[.24em] text-white/55">Anime sound archive</span>
+              </div>
             </div>
-            <p className="max-w-md text-[14px] leading-[1.7] text-[#6b7280]">
+            <p className="max-w-md text-[14px] font-medium leading-[1.75] text-white/65">
               Siwö es un buscador de openings y endings de anime. Recopilamos
               enlaces de descarga de{' '}
               <a
                 href="https://anitousen.com/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="font-medium text-[#14b8a6] transition hover:text-[#0d9488]"
+                className="font-bold text-[#f2c63d] transition hover:text-white"
               >
                 AniTousen
               </a>{' '}
-              y los presentamos en una interfaz limpia con metadatos enriquecidos.
+              y los organizamos como un archivo editorial para amantes del anime.
             </p>
             {updateDate && (
-              <p className="mt-4 text-[12px] text-[#9ca3af]">
-                Última actualización: {updateDate}
+              <p className="footer-update">
+                <span>UPDATE</span> {updateDate}
               </p>
             )}
           </div>
 
-          <div>
-            <h3 className="mb-4 font-space text-[14px] font-bold uppercase tracking-wider text-[#1d242f]">
-              Créditos
-            </h3>
-            <ul className="space-y-2 text-[14px] text-[#6b7280]">
+          <div className="footer-links">
+            <h3><span>03</span> Créditos</h3>
+            <ul>
               <li>
                 <a
                   href="https://anitousen.com/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="transition hover:text-[#14b8a6]"
+                  className="transition hover:text-[#f2c63d]"
                 >
                   AniTousen
                 </a>
@@ -70,7 +84,7 @@ export default function Footer({ generatedAt }) {
                   href="https://jikan.moe/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="transition hover:text-[#14b8a6]"
+                  className="transition hover:text-[#f2c63d]"
                 >
                   Jikan
                 </a>
@@ -80,7 +94,7 @@ export default function Footer({ generatedAt }) {
                   href="https://anilist.co/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="transition hover:text-[#14b8a6]"
+                  className="transition hover:text-[#f2c63d]"
                 >
                   AniList
                 </a>
@@ -90,7 +104,7 @@ export default function Footer({ generatedAt }) {
                   href="https://github.com/Kokeeu/Siwo"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="transition hover:text-[#14b8a6]"
+                  className="transition hover:text-[#f2c63d]"
                 >
                   GitHub
                 </a>
@@ -98,29 +112,30 @@ export default function Footer({ generatedAt }) {
             </ul>
           </div>
 
-          <div>
-            <h3 className="mb-4 font-space text-[14px] font-bold uppercase tracking-wider text-[#1d242f]">
-              Sígueme
-            </h3>
-            <p className="text-[14px] leading-[1.7] text-[#6b7280]">
-              Si te gusta el proyecto, sígueme en{' '}
+          <div className="footer-social">
+            <p className="footer-jp" aria-hidden="true">音<br />楽</p>
+            <h3><span>04</span> Comunidad</h3>
+            <p>
+              Nuevos lanzamientos, hallazgos y más música anime en{' '}
               <a
                 href="https://www.tiktok.com/@___siwo___"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="font-medium text-[#14b8a6] transition hover:text-[#0d9488]"
+                className="font-bold text-[#f2c63d] transition hover:text-white"
               >
                 TikTok
               </a>
               .
             </p>
+            <a className="footer-cta" href="https://www.tiktok.com/@___siwo___" target="_blank" rel="noopener noreferrer">
+              Seguir en TikTok <span aria-hidden="true">↗</span>
+            </a>
           </div>
         </div>
 
-        <div className="mt-10 border-t border-[#e2e8f0]/60 pt-6 text-center">
-          <p className="text-[13px] text-[#6b7280]">
-            © {new Date().getFullYear()} Siwö. Datos de AniTousen, Jikan y AniList.
-          </p>
+        <div className="footer-bottom" data-reveal>
+          <p>© {new Date().getFullYear()} Siwö. Hecho para escuchar en repeat.</p>
+          <p>Data // AniTousen · Jikan · AniList</p>
         </div>
       </div>
     </footer>

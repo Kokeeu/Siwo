@@ -6,6 +6,10 @@ import data from '../../public/data.json';
 const { animes = data, generatedAt = new Date().toISOString() } = data || {};
 ---
 
-<Layout title="Siwö - OP and ED" generatedAt={generatedAt}>
+<Layout
+  title="Siwö — Anime Sound Archive"
+  description="Explora openings y endings de anime en un archivo visual inspirado en el diseño editorial japonés."
+  generatedAt={generatedAt}
+>
   <SearchApp animes={animes} generatedAt={generatedAt} client:load />
 </Layout>
