@@ -17,8 +17,10 @@ function AnimeCard({ anime, index, onClick }) {
       onClick={() => onClick(anime)}
       className="anime-card group relative text-left"
       aria-label={`Ver detalles de ${anime.title}`}
+      data-reveal
+      style={{ '--reveal-delay': `${entranceDelay}ms` }}
     >
-      <div className="animate-fade-in-up" style={{ animationDelay: `${entranceDelay}ms` }}>
+      <div>
         <div className="anime-card-index" aria-hidden="true">
           <span>FILE</span>
           <strong>{itemNumber}</strong>
@@ -255,17 +257,32 @@ export default function SearchApp({ animes, generatedAt }) {
               </div>
             </div>
 
-            <div className="hero-art" aria-label="Ilustración manga de Siwö">
+            <div className="hero-art" aria-label="Collage editorial manga de Siwö">
               <div className="hero-art-blue" aria-hidden="true">音</div>
               <div className="hero-art-yellow" aria-hidden="true">楽</div>
-              <div className="hero-frame hero-frame-top" aria-hidden="true">
-                <img src={`${HOME_URL}avatar.jpg`} alt="" />
-              </div>
-              <img className="hero-character" src={`${HOME_URL}avatar.jpg`} alt="Retrato manga de Siwö" />
+              <span className="hero-print-code" aria-hidden="true">FILE 001 / SOUND INDEX</span>
+              <span className="hero-registration" aria-hidden="true">＋</span>
+              <figure className="hero-frame hero-frame-profile" aria-hidden="true">
+                <img src={`${HOME_URL}editorial/hero-panel-profile.jpg`} alt="" />
+              </figure>
+              <figure className="hero-frame hero-frame-top" aria-hidden="true">
+                <img src={`${HOME_URL}editorial/hero-panel-expression.jpg`} alt="" />
+              </figure>
+              <figure className="hero-frame hero-frame-scene" aria-hidden="true">
+                <img src={`${HOME_URL}editorial/hero-panel-scene.jpg`} alt="" />
+              </figure>
+              <figure className="hero-frame hero-frame-smile" aria-hidden="true">
+                <img src={`${HOME_URL}editorial/hero-panel-smile.jpg`} alt="" />
+              </figure>
+              <figure className="hero-character">
+                <img src={`${HOME_URL}editorial/hero-character.jpg`} alt="Personaje manga caminando con una bolsa de anime" />
+              </figure>
               <div className="hero-stamp" aria-hidden="true">
                 <span>LISTEN</span>
                 <strong>01</strong>
               </div>
+              <span className="hero-crop-mark hero-crop-mark-a" aria-hidden="true" />
+              <span className="hero-crop-mark hero-crop-mark-b" aria-hidden="true" />
             </div>
           </div>
 
@@ -278,6 +295,7 @@ export default function SearchApp({ animes, generatedAt }) {
 
       <main id="explorar" className="relative z-10 flex-1 scroll-mt-20">
         <section className="archive-section">
+          <div className="archive-margin-note" aria-hidden="true">CATALOGUE / {animes.length} FILES / 音楽</div>
           <div className="mx-auto max-w-[1320px] px-5 py-16 md:px-8 md:py-24">
             <header className="archive-header" data-reveal>
               <div>

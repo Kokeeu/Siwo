@@ -32,7 +32,15 @@ export default function Footer({ generatedAt }) {
         </div>
       </div>
 
-      <div className="mx-auto max-w-[1320px] px-5 py-14 md:px-8 md:py-20">
+      <div className="footer-art-background" aria-hidden="true">
+        <img className="footer-art-panel footer-art-panel-cowboy" src={`${HOME_URL}editorial/interlude-cowboy.jpg`} alt="" />
+        <img className="footer-art-panel footer-art-panel-lain" src={`${HOME_URL}editorial/interlude-lain.jpg`} alt="" />
+        <img className="footer-art-panel footer-art-panel-band" src={`${HOME_URL}editorial/interlude-band.jpg`} alt="" />
+        <img className="footer-art-panel footer-art-panel-lookback" src={`${HOME_URL}editorial/interlude-look-back.jpg`} alt="" />
+        <img className="footer-art-panel footer-art-panel-eri" src={`${HOME_URL}editorial/interlude-goodbye-eri.jpg`} alt="" />
+      </div>
+
+      <div className="footer-content mx-auto max-w-[1320px] px-5 py-14 md:px-8 md:py-20">
         <div className="footer-grid" data-reveal>
           <div className="footer-brand">
             <div className="mb-5 flex items-center gap-4">
