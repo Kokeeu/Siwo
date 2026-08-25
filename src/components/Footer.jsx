@@ -87,7 +87,7 @@ export default function Footer({ generatedAt }) {
               </li>
               <li>
                 <a
-                  href="https://github.com/Kokeeu/anitousen-search"
+                  href="https://github.com/Kokeeu/Siwo"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="transition hover:text-[#14b8a6]"
