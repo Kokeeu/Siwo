@@ -4,6 +4,10 @@ import SearchApp from '../components/SearchApp.jsx';
 import data from '../../public/data.json';
 
 const { animes = data, generatedAt = new Date().toISOString() } = data || {};
+const initialAnimes = animes.slice(0, 20);
+const baseUrl = import.meta.env.BASE_URL.endsWith('/')
+  ? import.meta.env.BASE_URL
+  : `${import.meta.env.BASE_URL}/`;
 ---
 
 <Layout
@@ -11,5 +15,11 @@ const { animes = data, generatedAt = new Date().toISOString() } = data || {};
   description="Explora openings y endings de anime en un archivo visual inspirado en el diseño editorial japonés."
   generatedAt={generatedAt}
 >
-  <SearchApp animes={animes} generatedAt={generatedAt} client:load />
+  <SearchApp
+    initialAnimes={initialAnimes}
+    animeCount={animes.length}
+    dataUrl={`${baseUrl}data.json`}
+    generatedAt={generatedAt}
+    client:load
+  />
 </Layout>

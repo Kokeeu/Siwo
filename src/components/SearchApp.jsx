@@ -6,6 +6,24 @@ import { formatSeason } from '../utils/season.js';
 
 const BASE_URL = import.meta.env.BASE_URL || '/';
 const HOME_URL = BASE_URL.endsWith('/') ? BASE_URL : BASE_URL + '/';
+const PAGE_SIZE = 20;
+
+function getPaginationItems(currentPage, totalPages) {
+  if (totalPages <= 7) {
+    return Array.from({ length: totalPages }, (_, index) => index + 1);
+  }
+
+  const pages = new Set([1, totalPages]);
+  for (let page = currentPage - 1; page <= currentPage + 1; page += 1) {
+    if (page > 1 && page < totalPages) pages.add(page);
+  }
+
+  const sortedPages = [...pages].sort((a, b) => a - b);
+  return sortedPages.flatMap((page, index) => {
+    const previousPage = sortedPages[index - 1];
+    return previousPage && page - previousPage > 1 ? ['ellipsis-' + page, page] : [page];
+  });
+}
 
 function AnimeCard({ anime, index, onClick }) {
   const itemNumber = String(index + 1).padStart(2, '0');
@@ -68,11 +86,12 @@ function AnimeCard({ anime, index, onClick }) {
   );
 }
 
-export default function SearchApp({ animes, generatedAt }) {
+export default function SearchApp({ initialAnimes = [], animeCount = initialAnimes.length, dataUrl, generatedAt }) {
+  const [animes, setAnimes] = useState(initialAnimes);
   const [query, setQuery] = useState('');
   const [season, setSeason] = useState('All');
   const [year, setYear] = useState('All');
-  const [showAll, setShowAll] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
   const [scrolled, setScrolled] = useState(false);
   const [selectedAnime, setSelectedAnime] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -85,9 +104,33 @@ export default function SearchApp({ animes, generatedAt }) {
   }, []);
 
   useEffect(() => {
-    const timer = setTimeout(() => setLoading(false), 250);
-    return () => clearTimeout(timer);
-  }, []);
+    if (!dataUrl) {
+      setLoading(false);
+      return undefined;
+    }
+
+    const controller = new AbortController();
+
+    async function loadCatalog() {
+      try {
+        const response = await fetch(dataUrl, { signal: controller.signal });
+        if (!response.ok) throw new Error(`No se pudo cargar el catálogo (${response.status})`);
+
+        const payload = await response.json();
+        const catalog = Array.isArray(payload) ? payload : payload.animes;
+        if (Array.isArray(catalog) && catalog.length > 0) setAnimes(catalog);
+      } catch (error) {
+        if (error.name !== 'AbortError') {
+          console.error('No se pudo cargar el catálogo completo; se usará la primera página.', error);
+        }
+      } finally {
+        if (!controller.signal.aborted) setLoading(false);
+      }
+    }
+
+    loadCatalog();
+    return () => controller.abort();
+  }, [dataUrl]);
 
   const openingFromUrl = useRef(false);
   const wasOpen = useRef(false);
@@ -99,10 +142,12 @@ export default function SearchApp({ animes, generatedAt }) {
     const q = params.get('q') || '';
     const s = params.get('season') || 'All';
     const y = params.get('year') || 'All';
+    const page = Number.parseInt(params.get('page') || '1', 10);
     const animeIdx = params.get('anime');
     if (q) setQuery(q);
     if (s !== 'All') setSeason(s);
     if (y !== 'All') setYear(y);
+    if (Number.isInteger(page) && page > 1) setCurrentPage(page);
     if (animeIdx !== null) {
       const idx = parseInt(animeIdx, 10);
       if (!isNaN(idx) && idx >= 0 && idx < animes.length) {
@@ -123,6 +168,7 @@ export default function SearchApp({ animes, generatedAt }) {
     if (query.trim()) params.set('q', query.trim());
     if (season !== 'All') params.set('season', season);
     if (year !== 'All') params.set('year', String(year));
+    if (currentPage > 1) params.set('page', String(currentPage));
     const isOpen = !!selectedAnime;
     if (selectedAnime) {
       const idx = animes.indexOf(selectedAnime);
@@ -137,7 +183,7 @@ export default function SearchApp({ animes, generatedAt }) {
     }
     wasOpen.current = isOpen;
     openingFromUrl.current = false;
-  }, [query, season, year, selectedAnime, animes]);
+  }, [query, season, year, currentPage, selectedAnime, animes]);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -174,7 +220,7 @@ export default function SearchApp({ animes, generatedAt }) {
 
     targets.forEach((target) => observer.observe(target));
     return () => observer.disconnect();
-  }, [loading]);
+  }, [loading, currentPage, query, season, year]);
 
   const seasons = useMemo(
     () => ['All', ...new Set(animes.map((a) => a.season))],
@@ -197,10 +243,33 @@ export default function SearchApp({ animes, generatedAt }) {
   }, [animes, query, season, year]);
 
   const hasFilters = query.trim() !== '' || season !== 'All' || year !== 'All';
-  const displayed = hasFilters
-    ? filtered
-    : filtered.slice(0, showAll ? filtered.length : 20);
-  const showLoadMore = !hasFilters && filtered.length > 20 && !showAll;
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const safeCurrentPage = Math.min(currentPage, totalPages);
+  const pageStart = (safeCurrentPage - 1) * PAGE_SIZE;
+  const displayed = filtered.slice(pageStart, pageStart + PAGE_SIZE);
+  const paginationItems = getPaginationItems(safeCurrentPage, totalPages);
+
+  useEffect(() => {
+    if (currentPage > totalPages) setCurrentPage(totalPages);
+  }, [currentPage, totalPages]);
+
+  const resetFilters = () => {
+    setQuery('');
+    setSeason('All');
+    setYear('All');
+    setCurrentPage(1);
+  };
+
+  const goToPage = (page) => {
+    if (page === safeCurrentPage || page < 1 || page > totalPages) return;
+    setCurrentPage(page);
+
+    window.requestAnimationFrame(() => {
+      const results = document.getElementById('resultados');
+      const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      results?.scrollIntoView({ behavior: reducedMotion ? 'auto' : 'smooth', block: 'start' });
+    });
+  };
 
   return (
     <div className="manga-page relative flex min-h-screen flex-col overflow-hidden font-inter">
@@ -251,7 +320,7 @@ export default function SearchApp({ animes, generatedAt }) {
               </p>
 
               <div className="hero-stats" aria-label="Resumen del archivo">
-                <div><strong>{animes.length}</strong><span>series</span></div>
+                <div><strong>{animeCount}</strong><span>series</span></div>
                 <div><strong>OP + ED</strong><span>colección</span></div>
                 <div><strong>毎週</strong><span>actualizado</span></div>
               </div>
@@ -295,7 +364,7 @@ export default function SearchApp({ animes, generatedAt }) {
 
       <main id="explorar" className="relative z-10 flex-1 scroll-mt-20">
         <section className="archive-section">
-          <div className="archive-margin-note" aria-hidden="true">CATALOGUE / {animes.length} FILES / 音楽</div>
+          <div className="archive-margin-note" aria-hidden="true">CATALOGUE / {animeCount} FILES / 音楽</div>
           <div className="mx-auto max-w-[1320px] px-5 py-16 md:px-8 md:py-24">
             <header className="archive-header" data-reveal>
               <div>
@@ -314,18 +383,37 @@ export default function SearchApp({ animes, generatedAt }) {
                     id="anime-search"
                     type="search"
                     value={query}
-                    onChange={(e) => setQuery(e.target.value)}
+                    onChange={(e) => {
+                      setQuery(e.target.value);
+                      setCurrentPage(1);
+                    }}
                     placeholder="Escribe el nombre de un anime..."
                   />
                   {query && (
-                    <button type="button" onClick={() => setQuery('')} aria-label="Limpiar búsqueda">×</button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setQuery('');
+                        setCurrentPage(1);
+                      }}
+                      aria-label="Limpiar búsqueda"
+                    >
+                      ×
+                    </button>
                   )}
                 </div>
               </div>
 
               <div className="filter-field">
                 <label htmlFor="season-filter">Temporada</label>
-                <select id="season-filter" value={season} onChange={(e) => setSeason(e.target.value)}>
+                <select
+                  id="season-filter"
+                  value={season}
+                  onChange={(e) => {
+                    setSeason(e.target.value);
+                    setCurrentPage(1);
+                  }}
+                >
                   {seasons.map((s) => (
                     <option key={s} value={s}>{s === 'All' ? 'Todas' : formatSeason(s)}</option>
                   ))}
@@ -334,7 +422,14 @@ export default function SearchApp({ animes, generatedAt }) {
 
               <div className="filter-field">
                 <label htmlFor="year-filter">Año</label>
-                <select id="year-filter" value={year} onChange={(e) => setYear(e.target.value)}>
+                <select
+                  id="year-filter"
+                  value={year}
+                  onChange={(e) => {
+                    setYear(e.target.value);
+                    setCurrentPage(1);
+                  }}
+                >
                   {years.map((y) => (
                     <option key={y} value={y}>{y === 'All' ? 'Todos' : y}</option>
                   ))}
@@ -345,20 +440,18 @@ export default function SearchApp({ animes, generatedAt }) {
                 <button
                   type="button"
                   className="clear-filters"
-                  onClick={() => {
-                    setQuery('');
-                    setSeason('All');
-                    setYear('All');
-                  }}
+                  onClick={resetFilters}
                 >
                   Limpiar<br />filtros
                 </button>
               )}
             </div>
 
-            <div className="results-bar" aria-live="polite" data-reveal>
+            <div id="resultados" className="results-bar scroll-mt-24" aria-live="polite" data-reveal>
               <p><strong>{filtered.length}</strong> resultados en el archivo</p>
-              <span>{hasFilters ? 'Filtros activos' : 'Selección reciente'} // 音楽</span>
+              <span>
+                {filtered.length > 0 ? `Página ${safeCurrentPage} de ${totalPages}` : 'Sin páginas'} // 音楽
+              </span>
             </div>
 
           {loading ? (
@@ -370,23 +463,55 @@ export default function SearchApp({ animes, generatedAt }) {
                   <AnimeCard
                     key={`${anime.title}-${anime.year}`}
                     anime={anime}
-                    index={index}
+                    index={pageStart + index}
                     onClick={setSelectedAnime}
                   />
                 ))}
               </div>
 
-              {showLoadMore && (
-                <div className="mt-14 flex justify-center md:mt-20">
+              {filtered.length > 0 && totalPages > 1 && (
+                <nav className="pagination" aria-label="Paginación de resultados">
                   <button
                     type="button"
-                    onClick={() => setShowAll(true)}
-                    className="load-more-button"
+                    className="pagination-arrow"
+                    onClick={() => goToPage(safeCurrentPage - 1)}
+                    disabled={safeCurrentPage === 1}
+                    aria-label="Ir a la página anterior"
                   >
-                    <span>Ver todo el archivo</span>
-                    <span aria-hidden="true">＋</span>
+                    <span aria-hidden="true">←</span>
+                    <span>Anterior</span>
                   </button>
-                </div>
+
+                  <div className="pagination-pages">
+                    {paginationItems.map((item) => (
+                      typeof item === 'number' ? (
+                        <button
+                          key={item}
+                          type="button"
+                          className={item === safeCurrentPage ? 'is-current' : ''}
+                          onClick={() => goToPage(item)}
+                          aria-label={`Ir a la página ${item}`}
+                          aria-current={item === safeCurrentPage ? 'page' : undefined}
+                        >
+                          {String(item).padStart(2, '0')}
+                        </button>
+                      ) : (
+                        <span key={item} className="pagination-ellipsis" aria-hidden="true">•••</span>
+                      )
+                    ))}
+                  </div>
+
+                  <button
+                    type="button"
+                    className="pagination-arrow"
+                    onClick={() => goToPage(safeCurrentPage + 1)}
+                    disabled={safeCurrentPage === totalPages}
+                    aria-label="Ir a la página siguiente"
+                  >
+                    <span>Siguiente</span>
+                    <span aria-hidden="true">→</span>
+                  </button>
+                </nav>
               )}
 
               {filtered.length === 0 && (
