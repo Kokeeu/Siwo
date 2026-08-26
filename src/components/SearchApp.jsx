@@ -7,6 +7,7 @@ import { formatSeason } from '../utils/season.js';
 const BASE_URL = import.meta.env.BASE_URL || '/';
 const HOME_URL = BASE_URL.endsWith('/') ? BASE_URL : BASE_URL + '/';
 const PAGE_SIZE = 20;
+const SEASON_ORDER = ['Winter', 'Spring', 'Summer', 'Fall'];
 
 function getPaginationItems(currentPage, totalPages) {
   if (totalPages <= 7) {
@@ -23,6 +24,116 @@ function getPaginationItems(currentPage, totalPages) {
     const previousPage = sortedPages[index - 1];
     return previousPage && page - previousPage > 1 ? ['ellipsis-' + page, page] : [page];
   });
+}
+
+function FilterSelect({ id, label, value, options, onChange }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const selectedIndex = Math.max(0, options.findIndex((option) => option.value === value));
+  const [activeIndex, setActiveIndex] = useState(selectedIndex);
+  const rootRef = useRef(null);
+  const triggerRef = useRef(null);
+  const selectedOption = options[selectedIndex];
+  const listboxId = `${id}-listbox`;
+
+  useEffect(() => {
+    setActiveIndex(selectedIndex);
+  }, [selectedIndex]);
+
+  useEffect(() => {
+    if (!isOpen) return undefined;
+
+    const handleOutsideClick = (event) => {
+      if (!rootRef.current?.contains(event.target)) setIsOpen(false);
+    };
+
+    document.addEventListener('pointerdown', handleOutsideClick);
+    return () => document.removeEventListener('pointerdown', handleOutsideClick);
+  }, [isOpen]);
+
+  const chooseOption = (index) => {
+    const option = options[index];
+    if (!option) return;
+    onChange(option.value);
+    setActiveIndex(index);
+    setIsOpen(false);
+    triggerRef.current?.focus();
+  };
+
+  const handleKeyDown = (event) => {
+    if (event.key === 'Escape') {
+      setIsOpen(false);
+      return;
+    }
+
+    if (event.key === 'Tab') {
+      setIsOpen(false);
+      return;
+    }
+
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      if (isOpen) chooseOption(activeIndex);
+      else setIsOpen(true);
+      return;
+    }
+
+    const movements = {
+      ArrowDown: Math.min(activeIndex + 1, options.length - 1),
+      ArrowUp: Math.max(activeIndex - 1, 0),
+      Home: 0,
+      End: options.length - 1,
+    };
+
+    if (Object.hasOwn(movements, event.key)) {
+      event.preventDefault();
+      setIsOpen(true);
+      setActiveIndex(movements[event.key]);
+    }
+  };
+
+  return (
+    <div className={`filter-field ${isOpen ? 'is-open' : ''}`}>
+      <label id={`${id}-label`} htmlFor={id}>{label}</label>
+      <div ref={rootRef} className={`custom-select ${isOpen ? 'is-open' : ''}`}>
+        <button
+          ref={triggerRef}
+          id={id}
+          type="button"
+          className="custom-select-trigger"
+          role="combobox"
+          aria-labelledby={`${id}-label ${id}-value`}
+          aria-controls={listboxId}
+          aria-expanded={isOpen}
+          aria-haspopup="listbox"
+          aria-activedescendant={isOpen ? `${id}-option-${activeIndex}` : undefined}
+          onClick={() => setIsOpen((open) => !open)}
+          onKeyDown={handleKeyDown}
+        >
+          <span id={`${id}-value`}>{selectedOption?.label}</span>
+          <span className="custom-select-chevron" aria-hidden="true" />
+        </button>
+
+        {isOpen && (
+          <div id={listboxId} className="custom-select-menu" role="listbox" aria-labelledby={`${id}-label`}>
+            {options.map((option, index) => (
+              <button
+                id={`${id}-option-${index}`}
+                key={option.value}
+                type="button"
+                role="option"
+                className={`custom-select-option ${index === selectedIndex ? 'is-selected' : ''} ${index === activeIndex ? 'is-active' : ''}`}
+                aria-selected={index === selectedIndex}
+                onClick={() => chooseOption(index)}
+                onPointerMove={() => setActiveIndex(index)}
+              >
+                <span>{option.label}</span>
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
 }
 
 function AnimeCard({ anime, index, onClick }) {
@@ -222,10 +333,11 @@ export default function SearchApp({ initialAnimes = [], animeCount = initialAnim
     return () => observer.disconnect();
   }, [loading, currentPage, query, season, year]);
 
-  const seasons = useMemo(
-    () => ['All', ...new Set(animes.map((a) => a.season))],
-    [animes]
-  );
+  const seasons = useMemo(() => {
+    const availableSeasons = new Set(animes.map((anime) => anime.season));
+    const orderedSeasons = SEASON_ORDER.filter((item) => availableSeasons.delete(item));
+    return ['All', ...orderedSeasons, ...availableSeasons];
+  }, [animes]);
 
   const years = useMemo(
     () => ['All', ...new Set(animes.map((a) => a.year).sort((a, b) => b - a))],
@@ -404,37 +516,33 @@ export default function SearchApp({ initialAnimes = [], animeCount = initialAnim
                 </div>
               </div>
 
-              <div className="filter-field">
-                <label htmlFor="season-filter">Temporada</label>
-                <select
-                  id="season-filter"
-                  value={season}
-                  onChange={(e) => {
-                    setSeason(e.target.value);
-                    setCurrentPage(1);
-                  }}
-                >
-                  {seasons.map((s) => (
-                    <option key={s} value={s}>{s === 'All' ? 'Todas' : formatSeason(s)}</option>
-                  ))}
-                </select>
-              </div>
+              <FilterSelect
+                id="season-filter"
+                label="Temporada"
+                value={season}
+                options={seasons.map((item) => ({
+                  value: item,
+                  label: item === 'All' ? 'Todas' : formatSeason(item),
+                }))}
+                onChange={(nextSeason) => {
+                  setSeason(nextSeason);
+                  setCurrentPage(1);
+                }}
+              />
 
-              <div className="filter-field">
-                <label htmlFor="year-filter">Año</label>
-                <select
-                  id="year-filter"
-                  value={year}
-                  onChange={(e) => {
-                    setYear(e.target.value);
-                    setCurrentPage(1);
-                  }}
-                >
-                  {years.map((y) => (
-                    <option key={y} value={y}>{y === 'All' ? 'Todos' : y}</option>
-                  ))}
-                </select>
-              </div>
+              <FilterSelect
+                id="year-filter"
+                label="Año"
+                value={year}
+                options={years.map((item) => ({
+                  value: String(item),
+                  label: item === 'All' ? 'Todos' : String(item),
+                }))}
+                onChange={(nextYear) => {
+                  setYear(nextYear);
+                  setCurrentPage(1);
+                }}
+              />
 
               {hasFilters && (
                 <button

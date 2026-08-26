@@ -694,9 +694,12 @@ body {
 
 .search-field,
 .filter-field {
+  position: relative;
   padding: 14px 16px 16px;
   border-right: 2px solid var(--ink);
 }
+
+.filter-field.is-open { z-index: 20; }
 
 .search-field label,
 .filter-field label {
@@ -747,18 +750,82 @@ body {
   cursor: pointer;
 }
 
-.filter-field select {
+.custom-select { position: relative; }
+
+.custom-select-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
   width: 100%;
   min-height: 44px;
   border: 0;
   border-bottom: 2px solid var(--ink);
   border-radius: 0;
-  background-color: transparent;
+  padding: 0 3px;
+  background: transparent;
   color: var(--ink);
   font-size: 14px;
   font-weight: 800;
+  text-align: left;
+  cursor: pointer;
   outline: 0;
 }
+
+.custom-select-trigger:focus-visible {
+  border-bottom-color: var(--blue);
+  box-shadow: 0 3px 0 var(--blue);
+}
+
+.custom-select-chevron {
+  width: 10px;
+  height: 10px;
+  margin: -5px 3px 0 0;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: rotate(45deg);
+  transition: transform .18s ease, margin .18s ease;
+}
+
+.custom-select.is-open .custom-select-chevron {
+  margin-top: 5px;
+  transform: rotate(225deg);
+}
+
+.custom-select-menu {
+  position: absolute;
+  top: calc(100% + 16px);
+  right: -16px;
+  left: -16px;
+  z-index: 30;
+  max-height: 272px;
+  overflow-y: auto;
+  border: 2px solid var(--ink);
+  background: var(--paper);
+  box-shadow: 6px 6px 0 var(--blue);
+}
+
+.custom-select-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  min-height: 42px;
+  padding: 9px 14px;
+  border: 0;
+  border-bottom: 1px solid rgba(17,17,17,.28);
+  background: var(--paper);
+  color: var(--ink);
+  font-size: 13px;
+  font-weight: 800;
+  text-align: left;
+  cursor: pointer;
+}
+
+.custom-select-option:last-child { border-bottom: 0; }
+.custom-select-option.is-selected { background: var(--yellow); }
+.custom-select-option.is-selected::after { content: '●'; font-size: 8px; }
+.custom-select-option.is-active { background: var(--blue); color: white; }
 
 .clear-filters {
   align-self: stretch;
@@ -1627,19 +1694,6 @@ body {
   .anime-card-cover .h-24 { width: 68px; height: 68px; }
 
   .empty-state { grid-template-columns: 1fr; gap: 18px; padding: 24px; }
-}
-
-select {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236b7280'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 0.75rem center;
-  background-size: 1rem;
-  padding-right: 2.25rem;
-}
-
-option {
-  background-color: #ffffff;
-  color: #111827;
 }
 
 @keyframes fade-in-up {
