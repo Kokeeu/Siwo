@@ -139,6 +139,12 @@ El proceso de generación acepta estas variables de entorno:
 | `SKIP_METADATA` | `0` | Usa `1` para omitir AniList y Kitsu. |
 | `ANITOUSEN_ZIP_URL` | Repositorio oficial | Permite usar otra fuente compatible. |
 
+## Documentación del proyecto
+
+- [`DESIGN.md`](./DESIGN.md) — identidad visual, componentes, responsive y accesibilidad.
+- [`AGENTS.md`](./AGENTS.md) — instrucciones de desarrollo y validación para agentes.
+- [`siwo-project`](./.agents/skills/siwo-project/SKILL.md) — skill reutilizable para mantener el proyecto sin perder su dirección técnica o visual.
+
 ## Estructura
 
 ```text
