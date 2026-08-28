@@ -1,6 +1,6 @@
 <div align="center">
 
-  <a href="https://kokeeu.github.io/anitousen-search/">
+  <a href="https://kokeeu.github.io/Siwo/">
     <img src="./public/og.png" alt="Siwö — Anime Sound Archive" width="920" />
   </a>
 
