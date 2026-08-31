@@ -1,5 +1,4 @@
-const BASE_URL = import.meta.env.BASE_URL || '/';
-const HOME_URL = BASE_URL.endsWith('/') ? BASE_URL : BASE_URL + '/';
+import { assetUrl } from '../utils/assets.js';
 
 function formatDate(iso) {
   if (!iso) return '';
@@ -33,11 +32,11 @@ export default function Footer({ generatedAt }) {
       </div>
 
       <div className="footer-art-background" aria-hidden="true">
-        <img className="footer-art-panel footer-art-panel-cowboy" src={`${HOME_URL}editorial/interlude-cowboy.jpg`} alt="" />
-        <img className="footer-art-panel footer-art-panel-lain" src={`${HOME_URL}editorial/interlude-lain.jpg`} alt="" />
-        <img className="footer-art-panel footer-art-panel-band" src={`${HOME_URL}editorial/interlude-band.jpg`} alt="" />
-        <img className="footer-art-panel footer-art-panel-lookback" src={`${HOME_URL}editorial/interlude-look-back.jpg`} alt="" />
-        <img className="footer-art-panel footer-art-panel-eri" src={`${HOME_URL}editorial/interlude-goodbye-eri.jpg`} alt="" />
+        <img className="footer-art-panel footer-art-panel-cowboy" src={assetUrl('editorial/interlude-cowboy.jpg')} alt="" />
+        <img className="footer-art-panel footer-art-panel-lain" src={assetUrl('editorial/interlude-lain.jpg')} alt="" />
+        <img className="footer-art-panel footer-art-panel-band" src={assetUrl('editorial/interlude-band.jpg')} alt="" />
+        <img className="footer-art-panel footer-art-panel-lookback" src={assetUrl('editorial/interlude-look-back.jpg')} alt="" />
+        <img className="footer-art-panel footer-art-panel-eri" src={assetUrl('editorial/interlude-goodbye-eri.jpg')} alt="" />
       </div>
 
       <div className="footer-content mx-auto max-w-[1320px] px-5 py-14 md:px-8 md:py-20">
@@ -45,7 +44,7 @@ export default function Footer({ generatedAt }) {
           <div className="footer-brand">
             <div className="mb-5 flex items-center gap-4">
               <img
-                src={`${HOME_URL}avatar.jpg`}
+                src={assetUrl('avatar.jpg')}
                 alt="Siwö"
                 className="h-14 w-14 border-2 border-white object-cover"
               />

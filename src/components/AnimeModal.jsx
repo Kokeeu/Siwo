@@ -1,8 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
+import { useModalDialog } from '../hooks/useModalDialog.js';
+import { assetUrl } from '../utils/assets.js';
 import { formatSeason } from '../utils/season.js';
-
-const BASE_URL = import.meta.env.BASE_URL || '/';
-const HOME_URL = BASE_URL.endsWith('/') ? BASE_URL : BASE_URL + '/';
 
 function hexToRgba(hex, alpha = 1) {
   if (!hex) return null;
@@ -31,20 +30,7 @@ export default function AnimeModal({ anime, onClose }) {
   const [dragY, setDragY] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
 
-  useEffect(() => {
-    const originalOverflow = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-
-    const handleKey = (e) => {
-      if (e.key === 'Escape') onClose();
-    };
-    window.addEventListener('keydown', handleKey);
-
-    return () => {
-      document.body.style.overflow = originalOverflow;
-      window.removeEventListener('keydown', handleKey);
-    };
-  }, [onClose]);
+  useModalDialog(panelRef, onClose);
 
   useEffect(() => {
     if (!panelRef.current) return;
@@ -148,7 +134,7 @@ export default function AnimeModal({ anime, onClose }) {
               />
             ) : (
               <div className="flex h-full flex-col items-center justify-center bg-[#ece7dc]">
-                <img src={`${HOME_URL}placeholder.png`} alt="Sin portada" className="h-24 w-24 border-2 border-black object-cover opacity-70" />
+                <img src={assetUrl('placeholder.png')} alt="Sin portada" className="h-24 w-24 border-2 border-black object-cover opacity-70" />
                 <span className="mt-3 text-[10px] font-black uppercase tracking-[.2em]">No image</span>
               </div>
             )}

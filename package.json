@@ -11,6 +11,7 @@
     "dev": "astro dev",
     "prebuild": "npm run build-index",
     "build": "astro build",
+    "test": "node --test",
     "preview": "astro preview",
     "astro": "astro"
   },

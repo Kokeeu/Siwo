@@ -1,10 +1,9 @@
 ---
 import '../styles/global.css';
+import { HOME_URL } from '../utils/assets.js';
 
 const { title, description, generatedAt } = Astro.props;
-const baseUrl = import.meta.env.BASE_URL.endsWith('/')
-  ? import.meta.env.BASE_URL
-  : import.meta.env.BASE_URL + '/';
+const baseUrl = HOME_URL;
 
 const siteUrl = new URL(baseUrl, Astro.site).href.replace(/\/$/, '');
 const pageTitle = title || 'Siwö — Anime Sound Archive';
