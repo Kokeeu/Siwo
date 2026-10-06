@@ -2,6 +2,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import AdmZip from 'adm-zip';
+import { isExpirableImageUrl, sanitizeCoverImage } from '../src/utils/imageUrls.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PUBLIC_DIR = path.join(__dirname, '..', 'public');
@@ -88,7 +89,9 @@ function normalizeDetails(details, source) {
     sourceUrl: details.sourceUrl || null,
     sourceLabel: details.sourceLabel || source,
     malUrl: details.malUrl || null,
-    coverImage: details.coverImage || null,
+    // Las URLs firmadas (p. ej. Kitsu/Backblaze con X-Amz-*) expiran y no
+    // deben cachearse: sin portada válida la UI muestra el placeholder.
+    coverImage: sanitizeCoverImage(details.coverImage),
     synopsis: details.synopsis || null,
     genres: Array.isArray(details.genres) ? details.genres : [],
     studios: Array.isArray(details.studios) ? details.studios : [],
@@ -410,6 +413,13 @@ async function fetchAnimeDetails(item, cache) {
   const key = cacheKey(item);
   const cached = cache.get(key);
   if (isFreshCacheEntry(cached)) {
+    // Autocuración: una portada firmada cacheada ya expiró; se descarta para
+    // que la UI muestre el placeholder. El flujo existente guarda la entrada
+    // sanada en el próximo checkpoint.
+    if (cached.coverImage && isExpirableImageUrl(cached.coverImage)) {
+      console.log('  ↳ cached cover is a signed URL; dropping it');
+      cached.coverImage = null;
+    }
     console.log(`  ↳ cache hit (${cached.source || cached.status})`);
     return cached;
   }

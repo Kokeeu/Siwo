@@ -74,6 +74,16 @@ export default function AnimeModal({ anime, onClose }) {
     return Number(score).toFixed(1);
   };
 
+  const placeholder = assetUrl('placeholder.png');
+
+  const handleImageError = (event) => {
+    const img = event.currentTarget;
+    if (img.dataset.fallbackApplied) return;
+    img.dataset.fallbackApplied = 'true';
+    img.alt = 'Sin portada';
+    img.src = placeholder;
+  };
+
   const hasDetails =
     anime.synopsis ||
     (anime.genres && anime.genres.length > 0) ||
@@ -116,11 +126,12 @@ export default function AnimeModal({ anime, onClose }) {
               <img
                 src={anime.coverImage}
                 alt={anime.title}
+                onError={handleImageError}
                 className="h-full w-full object-cover"
               />
             ) : (
               <div className="flex h-full flex-col items-center justify-center bg-[#ece7dc]">
-                <img src={assetUrl('placeholder.png')} alt="Sin portada" className="h-24 w-24 border-2 border-black object-cover opacity-70" />
+                <img src={placeholder} alt="Sin portada" className="h-24 w-24 border-2 border-black object-cover opacity-70" />
                 <span className="mt-3 text-[10px] font-black uppercase tracking-[.2em]">No image</span>
               </div>
             )}

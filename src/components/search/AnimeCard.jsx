@@ -4,6 +4,15 @@ import { formatSeason } from '../../utils/season.js';
 export default function AnimeCard({ anime, index, onClick }) {
   const itemNumber = String(index + 1).padStart(2, '0');
   const entranceDelay = Math.min(index, 12) * 55;
+  const placeholder = assetUrl('placeholder.png');
+
+  const handleImageError = (event) => {
+    const img = event.currentTarget;
+    if (img.dataset.fallbackApplied) return;
+    img.dataset.fallbackApplied = 'true';
+    img.alt = 'Sin portada';
+    img.src = placeholder;
+  };
 
   return (
     <button
@@ -26,13 +35,14 @@ export default function AnimeCard({ anime, index, onClick }) {
               src={anime.coverImage}
               alt={anime.title}
               loading="lazy"
+              onError={handleImageError}
               className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.04]"
             />
             <span className="anime-card-jp" aria-hidden="true">音楽</span>
           </div>
         ) : (
           <div className="anime-card-cover flex flex-col items-center justify-center bg-[#ece7dc]">
-            <img src={assetUrl('placeholder.png')} alt="Sin portada" className="mb-3 h-24 w-24 border-2 border-black object-cover opacity-70" />
+            <img src={placeholder} alt="Sin portada" className="mb-3 h-24 w-24 border-2 border-black object-cover opacity-70" />
             <span className="text-[10px] font-black uppercase tracking-[.2em] text-black/50">No image</span>
           </div>
         )}
