@@ -57,7 +57,7 @@ anitousen-search/
 │   ├── metadata-cache.json              # GENERADO, caché AniList/Kitsu
 │   ├── jikan-cache.json                 # GENERADO legacy, no editar
 │   ├── editorial/*.jpg                  # 10 piezas editoriales canónicas
-│   ├── og.png, placeholder.jpg/png      # social y fallback de portadas
+│   ├── og.png, placeholder.png        # social y fallback de portadas
 │   └── favicon*, apple-touch-icon.png, avatar.jpg
 ├── src/pages/index.astro                # única ruta: monta Layout + SearchApp
 ├── src/layouts/Layout.astro             # <head>, SEO/OG/canonical, fuentes, CSS global
@@ -118,7 +118,7 @@ const cover = assetUrl('editorial/hero-character.jpg');
 const dataUrl = '/data.json';
 ```
 
-- Preserva: filtros sincronizados con URL (`q, season, year, page, anime`), historial del navegador, navegación por teclado, `combobox/listbox` accesibles, foco visible, `prefers-reduced-motion` y placeholder si falta la portada (`public/placeholder.jpg`).
+- Preserva: filtros sincronizados con URL (`q, season, year, page, anime`), historial del navegador, navegación por teclado, `combobox/listbox` accesibles, foco visible, `prefers-reduced-motion` y placeholder si falta la portada (`public/placeholder.png`).
 - Geometría cuadrada, bordes duros y sombras offset según `DESIGN.md`. No reintroduzcas teal anterior, glassmorphism ni cards redondeadas.
 
 ## Assets, imágenes y diseño

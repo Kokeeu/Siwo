@@ -88,12 +88,12 @@ export default function Footer({ generatedAt }) {
               </li>
               <li>
                 <a
-                  href="https://jikan.moe/"
+                  href="https://kitsu.io/"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="transition hover:text-[#f2c63d]"
                 >
-                  Jikan
+                  Kitsu
                 </a>
               </li>
               <li>
@@ -142,7 +142,7 @@ export default function Footer({ generatedAt }) {
 
         <div className="footer-bottom" data-reveal>
           <p>© {new Date().getFullYear()} Siwö. Hecho para descargar tu opening o ending favorito.</p>
-          <p>Data // AniTousen · Jikan · AniList</p>
+          <p>Data // AniTousen · AniList · Kitsu</p>
         </div>
       </div>
     </footer>

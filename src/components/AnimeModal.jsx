@@ -3,15 +3,6 @@ import { useModalDialog } from '../hooks/useModalDialog.js';
 import { assetUrl } from '../utils/assets.js';
 import { formatSeason } from '../utils/season.js';
 
-function hexToRgba(hex, alpha = 1) {
-  if (!hex) return null;
-  const m = hex.replace('#', '');
-  const r = parseInt(m.substring(0, 2), 16);
-  const g = parseInt(m.substring(2, 4), 16);
-  const b = parseInt(m.substring(4, 6), 16);
-  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
-}
-
 function StatCard({ mark, label, value, color }) {
   return (
     <div className="modal-stat">
@@ -90,14 +81,9 @@ export default function AnimeModal({ anime, onClose }) {
     anime.episodes != null ||
     (anime.studios && anime.studios.length > 0);
 
-  const color = anime.dominantColor;
-  const backdropBg = color
-    ? `linear-gradient(180deg, ${hexToRgba(color, 0.55)} 0%, ${hexToRgba(color, 0.25)} 50%, #0b1120 100%)`
-    : undefined;
   return (
     <div
       className="anime-modal-backdrop fixed inset-0 z-[100] flex items-center justify-center overflow-y-auto p-4 animate-modal-in md:p-6"
-      style={backdropBg ? { backgroundImage: backdropBg } : undefined}
       onClick={handleBackdropClick}
       role="dialog"
       aria-modal="true"
@@ -139,12 +125,6 @@ export default function AnimeModal({ anime, onClose }) {
               </div>
             )}
             <div className="modal-cover-index" aria-hidden="true"><span>ARCHIVE</span><strong>音</strong></div>
-            {color && (
-              <div
-                className="pointer-events-none absolute inset-0 mix-blend-multiply"
-                style={{ background: `linear-gradient(180deg, ${hexToRgba(color, 0)} 55%, ${hexToRgba(color, 0.2)} 100%)` }}
-              />
-            )}
           </div>
 
           <div

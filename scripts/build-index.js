@@ -7,7 +7,6 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PUBLIC_DIR = path.join(__dirname, '..', 'public');
 const OUTPUT = path.join(PUBLIC_DIR, 'data.json');
 const CACHE_FILE = path.join(PUBLIC_DIR, 'metadata-cache.json');
-const LEGACY_CACHE_FILE = path.join(PUBLIC_DIR, 'jikan-cache.json');
 const ZIP_URL = process.env.ANITOUSEN_ZIP_URL || 'https://github.com/Avriole/AniTousen/archive/refs/heads/main.zip';
 
 const CACHE_VERSION = 3;
@@ -33,7 +32,17 @@ async function writeJsonAtomic(filePath, value) {
   const temporaryPath = `${filePath}.${process.pid}.${Date.now()}.tmp`;
   try {
     await fs.writeFile(temporaryPath, JSON.stringify(value, null, 2));
-    await fs.rename(temporaryPath, filePath);
+    for (let attempt = 1; ; attempt += 1) {
+      try {
+        await fs.rename(temporaryPath, filePath);
+        return;
+      } catch (error) {
+        // Windows antivirus/indexer can briefly lock the destination file.
+        const retryable = ['EPERM', 'EBUSY', 'EACCES'].includes(error.code) && attempt < 5;
+        if (!retryable) throw error;
+        await sleep(300 * attempt);
+      }
+    }
   } catch (error) {
     await fs.rm(temporaryPath, { force: true }).catch(() => {});
     throw error;
@@ -236,11 +245,9 @@ function parseIndex(buffer) {
 }
 
 async function loadCache() {
-  for (const filePath of [CACHE_FILE, LEGACY_CACHE_FILE]) {
-    try {
-      const parsed = JSON.parse(await fs.readFile(filePath, 'utf8'));
-      if (parsed.version !== CACHE_VERSION) continue;
-
+  try {
+    const parsed = JSON.parse(await fs.readFile(CACHE_FILE, 'utf8'));
+    if (parsed.version === CACHE_VERSION) {
       const cache = new Map();
       for (const [key, value] of Object.entries(parsed.entries || {})) {
         if (value?.status === 'found' || value?.status === 'not_found') {
@@ -248,9 +255,9 @@ async function loadCache() {
         }
       }
       return cache;
-    } catch {
-      // A missing or damaged cache must never prevent a fresh build.
     }
+  } catch {
+    // A missing or damaged cache must never prevent a fresh build.
   }
 
   return new Map();
@@ -454,14 +461,12 @@ function baseEntry(item) {
     title: item.title,
     season: item.season,
     year: item.year,
-    url: item.downloadLink,
     downloadLink: item.downloadLink,
     source: null,
     sourceUrl: null,
     sourceLabel: null,
     malUrl: null,
     coverImage: null,
-    dominantColor: null,
     synopsis: null,
     genres: [],
     studios: [],

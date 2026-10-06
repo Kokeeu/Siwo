@@ -4,8 +4,6 @@
   --font-inter: 'DM Sans', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   --font-space: 'Archivo Black', 'Noto Sans JP', ui-sans-serif, system-ui, sans-serif;
 
-  --color-prism-teal: #14b8a6;
-  --color-deep-teal: #0d9488;
   --color-carbon-ink: #1d242f;
   --color-graphite: #111827;
   --color-slate: #6b7280;
@@ -19,8 +17,6 @@
 }
 
 :root {
-  --color-prism-teal: #14b8a6;
-  --color-deep-teal: #0d9488;
   --color-carbon-ink: #1d242f;
   --color-graphite: #111827;
   --color-slate: #6b7280;

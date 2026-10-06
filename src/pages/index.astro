@@ -4,7 +4,7 @@ import SearchApp from '../components/SearchApp.jsx';
 import { HOME_URL } from '../utils/assets.js';
 import data from '../../public/data.json';
 
-const { animes = data, generatedAt = new Date().toISOString() } = data || {};
+const { animes = [], generatedAt = new Date().toISOString() } = data || {};
 const initialAnimes = animes.slice(0, 20);
 ---
 
