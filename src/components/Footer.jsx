@@ -141,7 +141,7 @@ export default function Footer({ generatedAt }) {
         </div>
 
         <div className="footer-bottom" data-reveal>
-          <p>© {new Date().getFullYear()} Siwö. Hecho para escuchar en repeat.</p>
+          <p>© {new Date().getFullYear()} Siwö. Hecho para descargar tu opening o ending favorito.</p>
           <p>Data // AniTousen · Jikan · AniList</p>
         </div>
       </div>
