@@ -1020,7 +1020,7 @@ body {
   text-transform: uppercase;
 }
 
-.anime-card h2 {
+.anime-card h3 {
   min-height: 42px;
   margin: 0;
   font-family: 'DM Sans', sans-serif;
@@ -1684,7 +1684,7 @@ body {
   .anime-card-cover { grid-column: 1; grid-row: 2; height: 168px; aspect-ratio: auto; border-right: 2px solid var(--ink); border-bottom: 0; }
   .anime-card-score { top: 34px; right: -5px; padding: 3px 5px; font-size: 9px; }
   .anime-card-copy { grid-column: 2; grid-row: 2; min-height: 0; padding: 14px 12px 10px; }
-  .anime-card h2 { min-height: 52px; font-size: 15px; line-height: 1.32; }
+  .anime-card h3 { min-height: 52px; font-size: 15px; line-height: 1.32; }
   .anime-card-meta { font-size: 7px; }
   .anime-card-action { margin-top: 14px; }
   .anime-card-cover .h-24 { width: 68px; height: 68px; }

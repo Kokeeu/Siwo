@@ -12,8 +12,8 @@
   </p>
 
   <p>
-    <a href="https://kokeeu.github.io/anitousen-search/"><img src="https://img.shields.io/badge/Explorar_el_archivo-e94b3c?style=for-the-badge&logo=githubpages&logoColor=white" alt="Abrir Siwö" /></a>
-    <a href="https://github.com/Kokeeu/anitousen-search/actions/workflows/deploy.yml"><img src="https://img.shields.io/github/actions/workflow/status/Kokeeu/anitousen-search/deploy.yml?branch=main&style=for-the-badge&label=GitHub%20Pages" alt="Estado del despliegue" /></a>
+    <a href="https://kokeeu.github.io/Siwo/"><img src="https://img.shields.io/badge/Explorar_el_archivo-e94b3c?style=for-the-badge&logo=githubpages&logoColor=white" alt="Abrir Siwö" /></a>
+    <a href="https://github.com/Kokeeu/Siwo/actions/workflows/deploy.yml"><img src="https://img.shields.io/github/actions/workflow/status/Kokeeu/Siwo/deploy.yml?branch=main&style=for-the-badge&label=GitHub%20Pages" alt="Estado del despliegue" /></a>
   </p>
 
   <p>
@@ -97,8 +97,8 @@ El generador es tolerante a fallos. Si AniList o Kitsu no responden, conserva la
 Requisitos: Node.js 22.12 o superior y npm.
 
 ```bash
-git clone https://github.com/Kokeeu/anitousen-search.git
-cd anitousen-search
+git clone https://github.com/Kokeeu/Siwo.git
+cd Siwo
 npm install
 npm run build-index
 npx astro dev --background
@@ -148,7 +148,7 @@ El proceso de generación acepta estas variables de entorno:
 ## Estructura
 
 ```text
-anitousen-search/
+Siwo/
 ├── .github/workflows/deploy.yml  # Build y despliegue automático
 ├── public/                       # Imágenes y catálogo generado
 ├── scripts/build-index.js        # Pipeline de datos

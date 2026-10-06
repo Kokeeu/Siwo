@@ -42,7 +42,7 @@ Notas:
 ## Mapa del repositorio — qué leer antes de tocar cada zona
 
 ```text
-anitousen-search/
+Siwo/
 ├── AGENTS.md                            # este archivo: reglas para agentes
 ├── DESIGN.md                            # sistema visual manga-editorial
 ├── README.md                            # doc humana, demo y créditos

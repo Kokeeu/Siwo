@@ -49,9 +49,9 @@ export default function AnimeCard({ anime, index, onClick }) {
             <span>{formatSeason(anime.season)}</span>
             <span>{anime.year || '—'}</span>
           </div>
-          <h2 className="line-clamp-2">
+          <h3 className="line-clamp-2">
             {anime.title}
-          </h2>
+          </h3>
           <div className="anime-card-action" aria-hidden="true">
             <span>Ver ficha</span>
             <span>↗</span>

@@ -9,7 +9,7 @@ const repoName = process.env.GITHUB_REPOSITORY?.split('/')[1] ?? 'Siwo';
 // https://astro.build/config
 export default defineConfig({
   output: 'static',
-  site: 'https://Kokeeu.github.io',
+  site: 'https://kokeeu.github.io',
   // Local development runs at the domain root; GitHub Pages uses the repo path.
   base: process.env.NODE_ENV === 'development' ? '/' : `/${repoName}`,
   integrations: [react()],
